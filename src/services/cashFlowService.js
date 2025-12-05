@@ -1,0 +1,85 @@
+import { supabase } from '../config/supabase'
+
+export const cashFlowService = {
+  async getCashFlow(userId) {
+    const { data, error } = await supabase
+      .from('cash_flow')
+      .select('*')
+      .eq('user_id', userId)
+      .order('transaction_date', { ascending: false })
+
+    if (error) throw error
+    return data
+  },
+
+  async getCashFlowByDateRange(userId, startDate, endDate) {
+    const { data, error } = await supabase
+      .from('cash_flow')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: false })
+
+    if (error) throw error
+    return data
+  },
+
+  async createTransaction(userId, transaction) {
+    const { data, error } = await supabase
+      .from('cash_flow')
+      .insert([{ user_id: userId, ...transaction }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async updateTransaction(id, updates) {
+    const { data, error } = await supabase
+      .from('cash_flow')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async deleteTransaction(id) {
+    const { error } = await supabase
+      .from('cash_flow')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
+  async getDailyFlow(userId, startDate, endDate) {
+    const { data, error } = await supabase
+      .from('cash_flow')
+      .select('transaction_date, transaction_type, amount')
+      .eq('user_id', userId)
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: true })
+
+    if (error) throw error
+
+    const grouped = {}
+    data.forEach((item) => {
+      if (!grouped[item.transaction_date]) {
+        grouped[item.transaction_date] = { entrada: 0, saída: 0 }
+      }
+      if (item.transaction_type === 'entrada') {
+        grouped[item.transaction_date].entrada += item.amount
+      } else {
+        grouped[item.transaction_date].saída += item.amount
+      }
+    })
+
+    return grouped
+  },
+}
