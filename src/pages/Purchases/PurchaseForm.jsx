@@ -192,13 +192,13 @@ export const PurchaseForm = ({
       />
 
       <Select
-        label="Categoria de Compra"
+        label={`Categoria de Compra ${categories.length > 0 ? `(${categories.length} disponíveis)` : ''}`}
         name="category_id"
         value={values.category_id}
         onChange={handleChange}
       >
         <option value="">
-          {loadingCategories ? 'Carregando...' : 'Selecione uma categoria'}
+          {loadingCategories ? 'Carregando...' : categories.length === 0 ? 'Nenhuma categoria encontrada' : 'Selecione uma categoria'}
         </option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
@@ -206,6 +206,28 @@ export const PurchaseForm = ({
           </option>
         ))}
       </Select>
+
+      {!loadingCategories && categories.length === 0 && (
+        <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded space-y-2">
+          <p>⚠️ Nenhuma categoria de compra encontrada. Verifique o console (F12) para mais detalhes.</p>
+          <Button 
+            type="button"
+            size="sm"
+            onClick={async () => {
+              try {
+                console.log('Forçando criação de categorias...')
+                await purchaseCategoryService.initializeDefaultCategories(user.id)
+                await loadCategories()
+              } catch (err) {
+                console.error('Erro ao criar categorias:', err)
+                setError('Erro ao criar categorias: ' + err.message)
+              }
+            }}
+          >
+            Criar Categorias Padrão
+          </Button>
+        </div>
+      )}
 
       <Select
         label="Forma de Pagamento"
