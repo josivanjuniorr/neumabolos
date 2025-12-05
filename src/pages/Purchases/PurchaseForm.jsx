@@ -15,6 +15,7 @@ export const PurchaseForm = ({
   const [suppliers, setSuppliers] = useState([])
   const [ingredients, setIngredients] = useState([])
   const [categories, setCategories] = useState([])
+  const [loadingCategories, setLoadingCategories] = useState(true)
   const [items, setItems] = useState(
     purchase?.purchase_items || []
   )
@@ -59,10 +60,24 @@ export const PurchaseForm = ({
 
   const loadCategories = async () => {
     try {
+      setLoadingCategories(true)
+      console.log('Carregando categorias para user:', user.id)
       const data = await purchaseCategoryService.getCategories(user.id)
-      setCategories(data || [])
+      console.log('Categorias carregadas:', data)
+      if (!data || data.length === 0) {
+        // Inicializar categorias padrão
+        console.log('Inicializando categorias padrão...')
+        await purchaseCategoryService.initializeDefaultCategories(user.id)
+        const newData = await purchaseCategoryService.getCategories(user.id)
+        console.log('Categorias após inicialização:', newData)
+        setCategories(newData || [])
+      } else {
+        setCategories(data || [])
+      }
     } catch (error) {
       console.error('Erro ao carregar categorias:', error)
+    } finally {
+      setLoadingCategories(false)
     }
   }
 
@@ -149,7 +164,9 @@ export const PurchaseForm = ({
         value={values.category_id}
         onChange={handleChange}
       >
-        <option value="">Selecione uma categoria</option>
+        <option value="">
+          {loadingCategories ? 'Carregando...' : 'Selecione uma categoria'}
+        </option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name} ({cat.type})
