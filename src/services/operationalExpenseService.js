@@ -3,7 +3,6 @@ import { supabase } from '../config/supabase'
 // Categorias de Compras
 export const purchaseCategoryService = {
   async getCategories(userId) {
-    console.log('[purchaseCategoryService] Buscando categorias para user:', userId)
     const { data, error } = await supabase
       .from('purchase_categories')
       .select('*')
@@ -11,11 +10,7 @@ export const purchaseCategoryService = {
       .order('type', { ascending: true })
       .order('name', { ascending: true })
 
-    if (error) {
-      console.error('[purchaseCategoryService] Erro ao buscar:', error)
-      throw error
-    }
-    console.log('[purchaseCategoryService] Categorias encontradas:', data)
+    if (error) throw error
     return data
   },
 
@@ -64,7 +59,6 @@ export const purchaseCategoryService = {
   },
 
   async initializeDefaultCategories(userId) {
-    console.log('[purchaseCategoryService] Inicializando categorias padrão para:', userId)
     const defaultCategories = [
       { name: 'CMV - Matéria Prima', type: 'CMV', description: 'Custo de Mercadoria Vendida - Ingredientes' },
       { name: 'Operacional - Energia', type: 'Operacional', description: 'Contas de energia elétrica' },
@@ -84,18 +78,12 @@ export const purchaseCategoryService = {
       user_id: userId
     }))
 
-    console.log('[purchaseCategoryService] Inserindo:', categoriesWithUserId.length, 'categorias')
     const { data, error } = await supabase
       .from('purchase_categories')
       .insert(categoriesWithUserId)
       .select()
-      // Removido .single() porque estamos inserindo múltiplos registros
 
-    if (error) {
-      console.error('[purchaseCategoryService] Erro ao inserir:', error)
-      throw error
-    }
-    console.log('[purchaseCategoryService] Categorias criadas com sucesso:', data)
+    if (error) throw error
     return data
   }
 }

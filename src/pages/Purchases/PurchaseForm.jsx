@@ -61,16 +61,12 @@ export const PurchaseForm = ({
   const loadCategories = async () => {
     try {
       setLoadingCategories(true)
-      console.log('Carregando categorias para user:', user.id)
       const data = await purchaseCategoryService.getCategories(user.id)
-      console.log('Categorias carregadas:', data)
       if (!data || data.length === 0) {
         // Inicializar categorias padrão
-        console.log('Inicializando categorias padrão...')
         try {
           await purchaseCategoryService.initializeDefaultCategories(user.id)
           const newData = await purchaseCategoryService.getCategories(user.id)
-          console.log('Categorias após inicialização:', newData)
           setCategories(newData || [])
         } catch (initError) {
           console.error('Erro ao inicializar categorias:', initError)
