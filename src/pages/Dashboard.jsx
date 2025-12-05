@@ -1,0 +1,307 @@
+import { useState, useEffect } from 'react'
+import { useAuth } from '../hooks'
+import { MainLayout, Card, StatCard } from '../components'
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
+import { purchaseService } from '../services/purchaseService'
+import { ingredientService } from '../services/ingredientService'
+import { productionService } from '../services/productionService'
+import { wasteService } from '../services/wasteService'
+import { cashFlowService } from '../services/cashFlowService'
+
+export const Dashboard = () => {
+  const { user } = useAuth()
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+
+    const loadDashboardData = async () => {
+      try {
+        const now = new Date()
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+        const lastDay = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0
+        )
+
+        const dateRange = {
+          start: firstDay.toISOString().split('T')[0],
+          end: lastDay.toISOString().split('T')[0],
+        }
+
+        const [
+          purchases,
+          expensesByCategory,
+          expensesBySupplier,
+          ingredients,
+          production,
+          waste,
+          dailyFlow,
+        ] = await Promise.all([
+          purchaseService.getPurchases(user.id),
+          purchaseService.getExpensesByCategory(
+            user.id,
+            dateRange.start,
+            dateRange.end
+          ),
+          purchaseService.getExpensesBySupplier(
+            user.id,
+            dateRange.start,
+            dateRange.end
+          ),
+          ingredientService.getMostExpensiveIngredients(user.id),
+          productionService.getProductionByDateRange(
+            user.id,
+            dateRange.start,
+            dateRange.end
+          ),
+          wasteService.getWasteByDateRange(
+            user.id,
+            dateRange.start,
+            dateRange.end
+          ),
+          cashFlowService.getDailyFlow(
+            user.id,
+            dateRange.start,
+            dateRange.end
+          ),
+        ])
+
+        const totalExpenses = purchases
+          .filter(
+            (p) =>
+              p.purchase_date >= dateRange.start &&
+              p.purchase_date <= dateRange.end
+          )
+          .reduce((sum, p) => sum + p.total, 0)
+
+        const totalProduction = production.reduce(
+          (sum, p) => sum + p.estimated_cost,
+          0
+        )
+
+        const totalWaste = waste.reduce(
+          (sum, w) => sum + w.estimated_cost,
+          0
+        )
+
+        const chartData = Object.entries(dailyFlow).map(
+          ([date, flow]) => ({
+            date: new Date(date).toLocaleDateString('pt-BR'),
+            entrada: flow.entrada,
+            saída: flow.saída,
+          })
+        )
+
+        const categoryData = Object.entries(
+          expensesByCategory
+        ).map(([name, value]) => ({
+          name,
+          value,
+        }))
+
+        const supplierData = Object.entries(
+          expensesBySupplier
+        ).map(([name, value]) => ({
+          name,
+          value,
+        }))
+
+        setData({
+          totalExpenses,
+          totalProduction,
+          totalWaste,
+          ingredientCount: ingredients.length,
+          topIngredients: ingredients.slice(0, 5),
+          categoryData,
+          supplierData,
+          chartData,
+        })
+      } catch (error) {
+        console.error('Erro ao carregar dashboard:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [user])
+
+  if (loading || !data) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </MainLayout>
+    )
+  }
+
+  const COLORS = [
+    '#3B82F6',
+    '#10B981',
+    '#F59E0B',
+    '#EF4444',
+    '#8B5CF6',
+  ]
+
+  return (
+    <MainLayout>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Dashboard
+        </h1>
+
+        {/* Estatísticas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total de Gastos (Mês)"
+            value={`R$ ${data.totalExpenses.toFixed(2)}`}
+            icon="💳"
+            color="blue"
+          />
+          <StatCard
+            title="Custo de Produção"
+            value={`R$ ${data.totalProduction.toFixed(2)}`}
+            icon="⚙️"
+            color="green"
+          />
+          <StatCard
+            title="Desperdício"
+            value={`R$ ${data.totalWaste.toFixed(2)}`}
+            icon="⚠️"
+            color="red"
+          />
+          <StatCard
+            title="Insumos Cadastrados"
+            value={data.ingredientCount}
+            icon="🛒"
+            color="purple"
+          />
+        </div>
+
+        {/* Gráficos */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Fluxo de Caixa */}
+          <Card title="Fluxo de Caixa">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={data.chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="entrada"
+                  stroke="#10B981"
+                  name="Entrada"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="saída"
+                  stroke="#EF4444"
+                  name="Saída"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+
+          {/* Gastos por Categoria */}
+          <Card title="Gastos por Categoria">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.categoryData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }) =>
+                    `${name}: R$ ${value.toFixed(0)}`
+                  }
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {data.categoryData.map(
+                    (entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          COLORS[index % COLORS.length]
+                        }
+                      />
+                    )
+                  )}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </Card>
+
+          {/* Gastos por Fornecedor */}
+          <Card title="Top 5 Fornecedores">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.supplierData.slice(0, 5)}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar
+                  dataKey="value"
+                  fill="#3B82F6"
+                  name="Gasto Total"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+
+          {/* Insumos Mais Caros */}
+          <Card title="Top 5 Insumos Mais Caros">
+            <div className="space-y-3">
+              {data.topIngredients.map((ingredient) => (
+                <div
+                  key={ingredient.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {ingredient.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {ingredient.category?.name}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-blue-600">
+                      R$ {ingredient.unit_cost.toFixed(2)}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      por {ingredient.unit_measure}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </MainLayout>
+  )
+}
