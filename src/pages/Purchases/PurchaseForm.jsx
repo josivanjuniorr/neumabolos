@@ -57,15 +57,22 @@ export const PurchaseForm = ({
   async function onFormSubmit(formData) {
     try {
       setError('')
+      
+      // Converter campos numéricos
+      const sanitizedData = {
+        ...formData,
+        total: formData.total === '' ? null : parseFloat(formData.total),
+      }
+      
       if (purchase) {
         await purchaseService.updatePurchase(
           purchase.id,
-          formData
+          sanitizedData
         )
       } else {
         await purchaseService.createPurchase(
           user.id,
-          formData,
+          sanitizedData,
           items
         )
       }

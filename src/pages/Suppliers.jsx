@@ -43,13 +43,20 @@ export const Suppliers = () => {
   async function onFormSubmit(formData) {
     try {
       setError('')
+      
+      // Converter campos vazios para null
+      const sanitizedData = {
+        ...formData,
+        rating: formData.rating === '' ? null : parseFloat(formData.rating),
+      }
+      
       if (editingSupplier) {
         await supplierService.updateSupplier(
           editingSupplier.id,
-          formData
+          sanitizedData
         )
       } else {
-        await supplierService.createSupplier(user.id, formData)
+        await supplierService.createSupplier(user.id, sanitizedData)
       }
       await loadSuppliers()
       setShowModal(false)

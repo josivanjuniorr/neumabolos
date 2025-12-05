@@ -44,10 +44,18 @@ export const Waste = () => {
   async function onFormSubmit(formData) {
     try {
       setError('')
+      
+      // Converter campos numéricos
+      const sanitizedData = {
+        ...formData,
+        quantity: parseFloat(formData.quantity),
+        estimated_cost: parseFloat(formData.estimated_cost),
+      }
+      
       if (editingWaste) {
-        await wasteService.updateWaste(editingWaste.id, formData)
+        await wasteService.updateWaste(editingWaste.id, sanitizedData)
       } else {
-        await wasteService.createWaste(user.id, formData)
+        await wasteService.createWaste(user.id, sanitizedData)
       }
       await loadWaste()
       setShowModal(false)

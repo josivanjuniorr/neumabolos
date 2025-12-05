@@ -58,15 +58,22 @@ export const IngredientForm = ({
   async function onFormSubmit(formData) {
     try {
       setError('')
+      
+      // Converter campos numéricos
+      const sanitizedData = {
+        ...formData,
+        unit_cost: formData.unit_cost === '' ? null : parseFloat(formData.unit_cost),
+      }
+      
       if (ingredient) {
         await ingredientService.updateIngredient(
           ingredient.id,
-          formData
+          sanitizedData
         )
       } else {
         await ingredientService.createIngredient(
           user.id,
-          formData
+          sanitizedData
         )
       }
       onSuccess()

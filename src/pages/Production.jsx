@@ -46,13 +46,21 @@ export const Production = () => {
   async function onFormSubmit(formData) {
     try {
       setError('')
+      
+      // Converter campos numéricos
+      const sanitizedData = {
+        ...formData,
+        quantity: parseFloat(formData.quantity),
+        estimated_cost: parseFloat(formData.estimated_cost),
+      }
+      
       if (editingProduction) {
         await productionService.updateProduction(
           editingProduction.id,
-          formData
+          sanitizedData
         )
       } else {
-        await productionService.createProduction(user.id, formData)
+        await productionService.createProduction(user.id, sanitizedData)
       }
       await loadProduction()
       setShowModal(false)

@@ -45,15 +45,22 @@ export const CashFlow = () => {
   async function onFormSubmit(formData) {
     try {
       setError('')
+      
+      // Converter campos numéricos
+      const sanitizedData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+      }
+      
       if (editingTransaction) {
         await cashFlowService.updateTransaction(
           editingTransaction.id,
-          formData
+          sanitizedData
         )
       } else {
         await cashFlowService.createTransaction(
           user.id,
-          formData
+          sanitizedData
         )
       }
       await loadCashFlow()
