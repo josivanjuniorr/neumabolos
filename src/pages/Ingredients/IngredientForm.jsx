@@ -3,6 +3,7 @@ import { useAuth, useForm } from '../../hooks'
 import { Button, Input, Select, Alert } from '../../components/common'
 import { ingredientService } from '../../services/ingredientService'
 import { supplierService } from '../../services/supplierService'
+import { categoryService } from '../../services/categoryService'
 
 export const IngredientForm = ({
   ingredient,
@@ -44,15 +45,19 @@ export const IngredientForm = ({
   }
 
   const loadCategories = async () => {
-    // Você precisará criar um serviço de categorias
-    // Por enquanto, vou usar uma lista padrão
-    setCategories([
-      { id: '1', name: 'Farinha e Açúcar' },
-      { id: '2', name: 'Ovos e Laticínios' },
-      { id: '3', name: 'Chocolate e Doces' },
-      { id: '4', name: 'Frutas e Aromatizantes' },
-      { id: '5', name: 'Outros' },
-    ])
+    try {
+      const data = await categoryService.getCategories(user.id)
+      if (!data || data.length === 0) {
+        // Inicializar categorias padrão
+        await categoryService.initializeDefaultCategories(user.id)
+        const newData = await categoryService.getCategories(user.id)
+        setCategories(newData || [])
+      } else {
+        setCategories(data || [])
+      }
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error)
+    }
   }
 
   async function onFormSubmit(formData) {

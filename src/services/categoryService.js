@@ -63,4 +63,29 @@ export const categoryService = {
 
     if (error) throw error
   },
+
+  async initializeDefaultCategories(userId) {
+    const defaultCategories = [
+      { name: 'Farinha e Açúcar' },
+      { name: 'Ovos e Laticínios' },
+      { name: 'Chocolate e Doces' },
+      { name: 'Frutas e Aromatizantes' },
+      { name: 'Gorduras e Óleos' },
+      { name: 'Essências e Corantes' },
+      { name: 'Outros' },
+    ]
+
+    const categoriesWithUserId = defaultCategories.map(cat => ({
+      ...cat,
+      user_id: userId
+    }))
+
+    const { data, error } = await supabase
+      .from('ingredient_categories')
+      .insert(categoriesWithUserId)
+      .select()
+
+    if (error) throw error
+    return data
+  }
 }
