@@ -33,7 +33,7 @@ export const Suppliers = () => {
     phone: editingSupplier?.phone || '',
     cnpj_cpf: editingSupplier?.cnpj_cpf || '',
     products_supplied: editingSupplier?.products_supplied || '',
-    nota_avaliacao: editingSupplier?.rating || '',
+    rating: editingSupplier?.rating || '',
     observations: editingSupplier?.observations || '',
   }
 
@@ -161,12 +161,12 @@ export const Suppliers = () => {
 
             <Input
               label="Avaliação"
-              name="nota_avaliacao"
+              name="rating"
               type="number"
               step="0.1"
               min="0"
               max="5"
-              value={values.nota_avaliacao}
+              value={values.rating}
               onChange={handleChange}
             />
 
