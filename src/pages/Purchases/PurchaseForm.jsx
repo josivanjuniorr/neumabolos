@@ -85,12 +85,34 @@ export const PurchaseForm = ({
     try {
       setError('')
       
+      // Validar itens
+      if (!items || items.length === 0) {
+        setError('Adicione pelo menos um item à compra')
+        return
+      }
+
+      const invalidItems = items.filter(
+        item => !item.ingredient_id || !item.quantity || !item.unit_price
+      )
+      
+      if (invalidItems.length > 0) {
+        setError('Preencha todos os campos dos itens')
+        return
+      }
+      
       // Converter campos numéricos e UUIDs
       const sanitizedData = {
         ...formData,
         total: formData.total === '' ? null : parseFloat(formData.total),
         category_id: formData.category_id === '' ? null : formData.category_id,
       }
+      
+      // Sanitizar itens
+      const sanitizedItems = items.map(item => ({
+        ingredient_id: item.ingredient_id,
+        quantity: parseFloat(item.quantity),
+        unit_price: parseFloat(item.unit_price),
+      }))
       
       if (purchase) {
         await purchaseService.updatePurchase(
@@ -101,7 +123,7 @@ export const PurchaseForm = ({
         await purchaseService.createPurchase(
           user.id,
           sanitizedData,
-          items
+          sanitizedItems
         )
       }
       onSuccess()

@@ -26,9 +26,13 @@ export const purchaseService = {
 
     if (purchaseError) throw purchaseError
 
+    // Calcular total_price para cada item
     const itemsWithPurchaseId = items.map((item) => ({
       purchase_id: purchaseData.id,
-      ...item,
+      ingredient_id: item.ingredient_id,
+      quantity: parseFloat(item.quantity),
+      unit_price: parseFloat(item.unit_price),
+      total_price: parseFloat(item.quantity) * parseFloat(item.unit_price),
     }))
 
     const { error: itemsError } = await supabase
