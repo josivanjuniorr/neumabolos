@@ -307,8 +307,8 @@ function ExpenseModal({ expense, categories, suppliers, onClose, onSuccess }) {
       const sanitizedData = {
         ...formData,
         amount: parseFloat(formData.amount),
-        supplier_id: formData.supplier_id || null,
-        category_id: formData.category_id || null,
+        supplier_id: formData.supplier_id === '' ? null : formData.supplier_id,
+        category_id: formData.category_id === '' ? null : formData.category_id,
       }
 
       if (expense) {

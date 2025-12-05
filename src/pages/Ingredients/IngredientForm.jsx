@@ -64,10 +64,12 @@ export const IngredientForm = ({
     try {
       setError('')
       
-      // Converter campos numéricos
+      // Converter campos numéricos e UUIDs
       const sanitizedData = {
         ...formData,
         unit_cost: formData.unit_cost === '' ? null : parseFloat(formData.unit_cost),
+        category_id: formData.category_id === '' ? null : formData.category_id,
+        supplier_id: formData.supplier_id === '' ? null : formData.supplier_id,
       }
       
       if (ingredient) {

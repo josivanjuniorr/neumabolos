@@ -47,11 +47,12 @@ export const Production = () => {
     try {
       setError('')
       
-      // Converter campos numéricos
+      // Converter campos numéricos e UUIDs
       const sanitizedData = {
         ...formData,
         quantity: parseFloat(formData.quantity),
         estimated_cost: parseFloat(formData.estimated_cost),
+        ingredient_id: formData.ingredient_id === '' ? null : formData.ingredient_id,
       }
       
       if (editingProduction) {

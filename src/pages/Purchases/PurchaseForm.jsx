@@ -70,10 +70,11 @@ export const PurchaseForm = ({
     try {
       setError('')
       
-      // Converter campos numéricos
+      // Converter campos numéricos e UUIDs
       const sanitizedData = {
         ...formData,
         total: formData.total === '' ? null : parseFloat(formData.total),
+        category_id: formData.category_id === '' ? null : formData.category_id,
       }
       
       if (purchase) {
