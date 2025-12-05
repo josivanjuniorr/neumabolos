@@ -1,3 +1,3 @@
-export { useAuth, AuthProvider } from './useAuth'
-export { useFetch } from './useFetch'
-export { useForm } from './useForm'
+export { useAuth, AuthProvider } from './useAuth.jsx'
+export { useFetch } from './useFetch.jsx'
+export { useForm } from './useForm.jsx'
