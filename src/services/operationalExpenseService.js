@@ -89,6 +89,7 @@ export const purchaseCategoryService = {
       .from('purchase_categories')
       .insert(categoriesWithUserId)
       .select()
+      // Removido .single() porque estamos inserindo múltiplos registros
 
     if (error) {
       console.error('[purchaseCategoryService] Erro ao inserir:', error)
