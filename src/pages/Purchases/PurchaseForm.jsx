@@ -67,15 +67,26 @@ export const PurchaseForm = ({
       if (!data || data.length === 0) {
         // Inicializar categorias padrão
         console.log('Inicializando categorias padrão...')
-        await purchaseCategoryService.initializeDefaultCategories(user.id)
-        const newData = await purchaseCategoryService.getCategories(user.id)
-        console.log('Categorias após inicialização:', newData)
-        setCategories(newData || [])
+        try {
+          await purchaseCategoryService.initializeDefaultCategories(user.id)
+          const newData = await purchaseCategoryService.getCategories(user.id)
+          console.log('Categorias após inicialização:', newData)
+          setCategories(newData || [])
+        } catch (initError) {
+          console.error('Erro ao inicializar categorias:', initError)
+          if (initError.message?.includes('relation') || initError.message?.includes('does not exist')) {
+            setError('⚠️ Tabela de categorias não encontrada. Execute o script database-update.sql no Supabase SQL Editor.')
+          }
+          throw initError
+        }
       } else {
         setCategories(data || [])
       }
     } catch (error) {
       console.error('Erro ao carregar categorias:', error)
+      if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        setError('⚠️ Configure o banco de dados: Execute database-update.sql no Supabase SQL Editor')
+      }
     } finally {
       setLoadingCategories(false)
     }
