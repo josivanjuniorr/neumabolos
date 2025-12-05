@@ -115,7 +115,7 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <Router>
+    <Router basename="/neumabolos">
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
