@@ -4,6 +4,7 @@ import { Button, Input, Select, Alert } from '../../components/common'
 import { purchaseService } from '../../services/purchaseService'
 import { supplierService } from '../../services/supplierService'
 import { ingredientService } from '../../services/ingredientService'
+import { purchaseCategoryService } from '../../services/operationalExpenseService'
 
 export const PurchaseForm = ({
   purchase,
@@ -13,6 +14,7 @@ export const PurchaseForm = ({
   const { user } = useAuth()
   const [suppliers, setSuppliers] = useState([])
   const [ingredients, setIngredients] = useState([])
+  const [categories, setCategories] = useState([])
   const [items, setItems] = useState(
     purchase?.purchase_items || []
   )
@@ -33,6 +35,7 @@ export const PurchaseForm = ({
     if (!user) return
     loadSuppliers()
     loadIngredients()
+    loadCategories()
   }, [user])
 
   const loadSuppliers = async () => {
@@ -51,6 +54,15 @@ export const PurchaseForm = ({
       setIngredients(data || [])
     } catch (error) {
       console.error('Erro ao carregar insumos:', error)
+    }
+  }
+
+  const loadCategories = async () => {
+    try {
+      const data = await purchaseCategoryService.getCategories(user.id)
+      setCategories(data || [])
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error)
     }
   }
 
@@ -129,6 +141,20 @@ export const PurchaseForm = ({
         }))}
         required
       />
+
+      <Select
+        label="Categoria de Compra"
+        name="category_id"
+        value={values.category_id}
+        onChange={handleChange}
+      >
+        <option value="">Selecione uma categoria</option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name} ({cat.type})
+          </option>
+        ))}
+      </Select>
 
       <Select
         label="Forma de Pagamento"

@@ -8,6 +8,7 @@ const navigation = [
   { name: 'Fornecedores', href: '/fornecedores', icon: '🏢' },
   { name: 'Produção', href: '/producao', icon: '⚙️' },
   { name: 'Desperdício', href: '/desperdicio', icon: '⚠️' },
+  { name: 'Despesas Operacionais', href: '/despesas-operacionais', icon: '📄' },
   { name: 'Caixa', href: '/caixa', icon: '💰' },
   { name: 'Relatórios', href: '/relatorios', icon: '📄' },
 ]
