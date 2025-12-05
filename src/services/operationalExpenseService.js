@@ -19,7 +19,7 @@ export const purchaseCategoryService = {
       .from('purchase_categories')
       .select('*')
       .eq('id', id)
-      .single()
+      .maybeSingle()
 
     if (error) throw error
     return data
@@ -126,7 +126,7 @@ export const operationalExpenseService = {
         supplier:suppliers(id, name)
       `)
       .eq('id', id)
-      .single()
+      .maybeSingle()
 
     if (error) throw error
     return data

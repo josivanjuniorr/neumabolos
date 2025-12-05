@@ -18,7 +18,7 @@ export const categoryService = {
       .from('ingredient_categories')
       .select('*')
       .eq('id', id)
-      .single()
+      .maybeSingle()
 
     if (error) throw error
 
