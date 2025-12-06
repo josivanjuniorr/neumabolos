@@ -26,38 +26,42 @@ export const Dashboard = () => {
   const { user } = useAuth()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  
+  // Estado para filtros de data
+  const now = new Date()
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  
+  const [startDate, setStartDate] = useState(firstDayOfMonth.toISOString().split('T')[0])
+  const [endDate, setEndDate] = useState(lastDayOfMonth.toISOString().split('T')[0])
 
   useEffect(() => {
     if (!user) return
+    loadDashboardData()
+  }, [user, startDate, endDate])
 
-    const loadDashboardData = async () => {
-      try {
-        const now = new Date()
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-        const lastDay = new Date(
-          now.getFullYear(),
-          now.getMonth() + 1,
-          0
-        )
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true)
 
-        const dateRange = {
-          start: firstDay.toISOString().split('T')[0],
-          end: lastDay.toISOString().split('T')[0],
-        }
+      const dateRange = {
+        start: startDate,
+        end: endDate,
+      }
 
-        const [
-          purchases,
-          expensesByCategory,
-          expensesBySupplier,
-          allIngredients,
-          topIngredients,
-          production,
-          waste,
-          dailyFlow,
-        ] = await Promise.all([
-          purchaseService.getPurchases(user.id),
-          purchaseService.getExpensesByCategory(
-            user.id,
+      const [
+        purchases,
+        expensesByCategory,
+        expensesBySupplier,
+        allIngredients,
+        topIngredients,
+        production,
+        waste,
+        dailyFlow,
+      ] = await Promise.all([
+        purchaseService.getPurchases(user.id),
+        purchaseService.getExpensesByCategory(
+          user.id,
             dateRange.start,
             dateRange.end
           ),
@@ -147,10 +151,7 @@ export const Dashboard = () => {
       } finally {
         setLoading(false)
       }
-    }
-
-    loadDashboardData()
-  }, [user])
+  }
 
   if (loading || !data) {
     return (
@@ -173,9 +174,41 @@ export const Dashboard = () => {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Dashboard
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Dashboard
+          </h1>
+          
+          {/* Filtro de Data */}
+          <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100">
+            <label className="text-sm font-medium text-gray-700">Período:</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <span className="text-gray-500">até</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <button
+              onClick={() => {
+                const now = new Date()
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+                setStartDate(firstDay.toISOString().split('T')[0])
+                setEndDate(lastDay.toISOString().split('T')[0])
+              }}
+              className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+            >
+              Mês Atual
+            </button>
+          </div>
+        </div>
 
         {/* Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
