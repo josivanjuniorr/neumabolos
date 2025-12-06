@@ -174,13 +174,13 @@ export const Dashboard = () => {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-3xl font-bold text-gray-900">
             Dashboard
           </h1>
           
           {/* Filtro de Data */}
-          <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex flex-wrap items-center gap-2 bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100">
             <label className="text-sm font-medium text-gray-700">Período:</label>
             <input
               type="date"
@@ -188,7 +188,7 @@ export const Dashboard = () => {
               onChange={(e) => setStartDate(e.target.value)}
               className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
-            <span className="text-gray-500">até</span>
+            <span className="text-gray-500 text-sm">até</span>
             <input
               type="date"
               value={endDate}
@@ -203,7 +203,7 @@ export const Dashboard = () => {
                 setStartDate(firstDay.toISOString().split('T')[0])
                 setEndDate(lastDay.toISOString().split('T')[0])
               }}
-              className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
               Mês Atual
             </button>
