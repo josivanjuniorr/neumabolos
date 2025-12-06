@@ -7,6 +7,7 @@ import {
   IngredientsList,
   PurchasesList,
   Suppliers,
+  Clients,
   Production,
   Waste,
   CashFlow,
@@ -67,6 +68,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Suppliers />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/clientes"
+        element={
+          <ProtectedRoute>
+            <Clients />
           </ProtectedRoute>
         }
       />

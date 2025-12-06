@@ -21,6 +21,7 @@ import { ingredientService } from '../services/ingredientService'
 import { productionService } from '../services/productionService'
 import { wasteService } from '../services/wasteService'
 import { cashFlowService } from '../services/cashFlowService'
+import { clientService } from '../services/clientService'
 
 export const Dashboard = () => {
   const { user } = useAuth()
@@ -73,7 +74,8 @@ export const Dashboard = () => {
         expensesByCategory,
         expensesBySupplier,
         allIngredients,
-        topIngredients,
+        topClientsByOrders,
+        topClientsByRevenue,
         production,
         waste,
         dailyFlow,
@@ -90,7 +92,8 @@ export const Dashboard = () => {
             dateRange.end
           ),
           ingredientService.getIngredients(user.id),
-          ingredientService.getMostExpensiveIngredients(user.id, 5),
+          clientService.getTopClientsByOrders(user.id, 5),
+          clientService.getTopClientsByRevenue(user.id, 5),
           productionService.getProductionByDateRange(
             user.id,
             dateRange.start,
@@ -160,7 +163,8 @@ export const Dashboard = () => {
           totalProduction,
           totalWaste,
           ingredientCount: allIngredients.length,
-          topIngredients: topIngredients,
+          topClientsByOrders,
+          topClientsByRevenue,
           categoryData,
           supplierData,
           chartData,
@@ -514,32 +518,73 @@ export const Dashboard = () => {
             </ResponsiveContainer>
           </Card>
 
-          {/* Insumos Mais Caros */}
-          <Card title="Top 5 Insumos Mais Caros">
+          {/* Top 5 Clientes com Mais Pedidos */}
+          <Card title="Top 5 Clientes - Mais Pedidos">
             <div className="space-y-3">
-              {data.topIngredients.map((ingredient) => (
-                <div
-                  key={ingredient.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {ingredient.name}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {ingredient.category?.name}
-                    </p>
+              {data.topClientsByOrders.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">
+                  Nenhum cliente com pedidos
+                </p>
+              ) : (
+                data.topClientsByOrders.map((client, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 font-bold">{index + 1}</span>
+                      </div>
+                      <p className="font-medium text-gray-900">
+                        {client.name}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-blue-600">
+                        {client.count}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {client.count === 1 ? 'pedido' : 'pedidos'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-blue-600">
-                      R$ {ingredient.unit_cost.toFixed(2)}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      por {ingredient.unit_measure}
-                    </p>
+                ))
+              )}
+            </div>
+          </Card>
+
+          {/* Top 5 Clientes que Mais Gastaram */}
+          <Card title="Top 5 Clientes - Maior Faturamento">
+            <div className="space-y-3">
+              {data.topClientsByRevenue.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">
+                  Nenhum cliente com faturamento
+                </p>
+              ) : (
+                data.topClientsByRevenue.map((client, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <span className="text-green-600 font-bold">{index + 1}</span>
+                      </div>
+                      <p className="font-medium text-gray-900">
+                        {client.name}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-600">
+                        R$ {client.total.toFixed(2)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        total
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </Card>
         </div>

@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react'
 import { useAuth, useForm } from '../hooks'
 import { MainLayout, Card, Button, Table, Modal, Input, Select, Alert } from '../components'
 import { productionService } from '../services/productionService'
+import { clientService } from '../services/clientService'
 
 export const Production = () => {
   const { user } = useAuth()
   const [production, setProduction] = useState([])
+  const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingProduction, setEditingProduction] =
@@ -16,7 +18,7 @@ export const Production = () => {
     production_date: new Date().toISOString().split('T')[0],
     product_name: '',
     quantity: '',
-    client_name: '',
+    client_id: '',
     valor: '',
     status: 'encomenda',
     observations: '',
@@ -28,6 +30,7 @@ export const Production = () => {
   useEffect(() => {
     if (!user) return
     loadProduction()
+    loadClients()
   }, [user])
 
   useEffect(() => {
@@ -35,7 +38,7 @@ export const Production = () => {
       setFieldValue('production_date', editingProduction.production_date)
       setFieldValue('product_name', editingProduction.product_name)
       setFieldValue('quantity', editingProduction.quantity)
-      setFieldValue('client_name', editingProduction.client_name || '')
+      setFieldValue('client_id', editingProduction.client_id || '')
       setFieldValue('valor', editingProduction.valor || '')
       setFieldValue('status', editingProduction.status || 'encomenda')
       setFieldValue('observations', editingProduction.observations || '')
@@ -43,7 +46,7 @@ export const Production = () => {
       setFieldValue('production_date', new Date().toISOString().split('T')[0])
       setFieldValue('product_name', '')
       setFieldValue('quantity', '')
-      setFieldValue('client_name', '')
+      setFieldValue('client_id', '')
       setFieldValue('valor', '')
       setFieldValue('status', 'encomenda')
       setFieldValue('observations', '')
@@ -61,6 +64,15 @@ export const Production = () => {
       console.error('Erro ao carregar produção:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadClients = async () => {
+    try {
+      const data = await clientService.getClients(user.id)
+      setClients(data || [])
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error)
     }
   }
 
@@ -122,7 +134,11 @@ export const Production = () => {
       label: 'Quantidade',
       render: (value) => value.toFixed(2),
     },
-    { key: 'client_name', label: 'Cliente' },
+    { 
+      key: 'clients', 
+      label: 'Cliente',
+      render: (value) => value?.name || '-'
+    },
     {
       key: 'valor',
       label: 'Valor',
@@ -203,12 +219,18 @@ export const Production = () => {
               required
             />
 
-            <Input
+            <Select
               label="Cliente"
-              name="client_name"
-              value={values.client_name}
+              name="client_id"
+              value={values.client_id}
               onChange={handleChange}
-              placeholder="Nome do cliente"
+              options={[
+                { value: '', label: 'Selecione um cliente' },
+                ...clients.map(client => ({
+                  value: client.id,
+                  label: client.name
+                }))
+              ]}
             />
 
             <Input

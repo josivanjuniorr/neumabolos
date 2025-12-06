@@ -7,6 +7,7 @@ const navigation = [
   { name: 'Insumos', href: '/ingredientes', icon: 'ingredients' },
   { name: 'Compras', href: '/compras', icon: 'purchases' },
   { name: 'Fornecedores', href: '/fornecedores', icon: 'suppliers' },
+  { name: 'Clientes', href: '/clientes', icon: 'suppliers' },
   { name: 'Produção', href: '/producao', icon: 'production' },
   { name: 'Desperdício', href: '/desperdicio', icon: 'waste' },
   { name: 'Caixa', href: '/caixa', icon: 'cashFlow' },

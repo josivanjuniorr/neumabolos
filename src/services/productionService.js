@@ -5,7 +5,7 @@ export const productionService = {
   async getDailyProduction(userId, date) {
     const { data, error } = await supabase
       .from('daily_production')
-      .select('*')
+      .select('*, clients(name)')
       .eq('user_id', userId)
       .eq('production_date', date)
       .order('created_at', { ascending: false })
@@ -17,7 +17,7 @@ export const productionService = {
   async getProductionByDateRange(userId, startDate, endDate) {
     const { data, error } = await supabase
       .from('daily_production')
-      .select('*')
+      .select('*, clients(name)')
       .eq('user_id', userId)
       .gte('production_date', startDate)
       .lte('production_date', endDate)
@@ -38,11 +38,22 @@ export const productionService = {
 
     // Se já foi criado com status 'entregue' e tem valor, criar entrada no caixa
     if (production.status === 'entregue' && production.valor > 0) {
+      // Buscar nome do cliente se houver client_id
+      let clientName = ''
+      if (production.client_id) {
+        const { data: client } = await supabase
+          .from('clients')
+          .select('name')
+          .eq('id', production.client_id)
+          .single()
+        clientName = client?.name || ''
+      }
+
       await cashFlowService.createTransaction(userId, {
         transaction_date: new Date().toISOString().split('T')[0],
         transaction_type: 'entrada',
         category: 'Venda',
-        description: `Venda - ${production.product_name}${production.client_name ? ` - ${production.client_name}` : ''}`,
+        description: `Venda - ${production.product_name}${clientName ? ` - ${clientName}` : ''}`,
         amount: production.valor,
         payment_form: 'Dinheiro',
       })
@@ -77,11 +88,22 @@ export const productionService = {
       updates.status === 'entregue' &&
       data.valor > 0
     ) {
+      // Buscar nome do cliente se houver client_id
+      let clientName = ''
+      if (data.client_id) {
+        const { data: client } = await supabase
+          .from('clients')
+          .select('name')
+          .eq('id', data.client_id)
+          .single()
+        clientName = client?.name || ''
+      }
+
       await cashFlowService.createTransaction(data.user_id, {
         transaction_date: new Date().toISOString().split('T')[0],
         transaction_type: 'entrada',
         category: 'Venda',
-        description: `Venda - ${data.product_name}${data.client_name ? ` - ${data.client_name}` : ''}`,
+        description: `Venda - ${data.product_name}${clientName ? ` - ${clientName}` : ''}`,
         amount: data.valor,
         payment_form: 'Dinheiro',
       })
