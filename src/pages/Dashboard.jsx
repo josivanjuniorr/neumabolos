@@ -178,7 +178,7 @@ export const Dashboard = () => {
         </h1>
 
         {/* Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <StatCard
             title="Faturamento (Mês)"
             value={`R$ ${data.totalRevenue.toFixed(2)}`}
@@ -203,10 +203,16 @@ export const Dashboard = () => {
             icon="⚠️"
             color="orange"
           />
+          <StatCard
+            title="Insumos Cadastrados"
+            value={data.ingredientCount}
+            icon="🛒"
+            color="purple"
+          />
         </div>
 
         {/* Card de Resumo Financeiro */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <Card title="Resumo do Mês">
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
@@ -246,13 +252,6 @@ export const Dashboard = () => {
               </div>
             </div>
           </Card>
-
-          <StatCard
-            title="Insumos Cadastrados"
-            value={data.ingredientCount}
-            icon="🛒"
-            color="purple"
-          />
         </div>
 
         {/* Gráficos */}
