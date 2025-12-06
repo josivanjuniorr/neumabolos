@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase'
+import { cashFlowService } from './cashFlowService'
 
 export const productionService = {
   async getDailyProduction(userId, date) {
@@ -34,10 +35,33 @@ export const productionService = {
       .single()
 
     if (error) throw error
+
+    // Se já foi criado com status 'entregue' e tem valor, criar entrada no caixa
+    if (production.status === 'entregue' && production.valor > 0) {
+      await cashFlowService.createTransaction(userId, {
+        transaction_date: new Date().toISOString().split('T')[0],
+        transaction_type: 'entrada',
+        category: 'Venda',
+        description: `Venda - ${production.product_name}${production.client_name ? ` - ${production.client_name}` : ''}`,
+        amount: production.valor,
+        payment_form: 'Dinheiro',
+      })
+    }
+
     return data
   },
 
   async updateProduction(id, updates) {
+    // Buscar produção atual para comparar status
+    const { data: currentProduction, error: fetchError } = await supabase
+      .from('daily_production')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (fetchError) throw fetchError
+
+    // Atualizar produção
     const { data, error } = await supabase
       .from('daily_production')
       .update(updates)
@@ -46,6 +70,23 @@ export const productionService = {
       .single()
 
     if (error) throw error
+
+    // Se status mudou de 'encomenda' para 'entregue' e tem valor, criar entrada no caixa
+    if (
+      currentProduction.status !== 'entregue' &&
+      updates.status === 'entregue' &&
+      data.valor > 0
+    ) {
+      await cashFlowService.createTransaction(data.user_id, {
+        transaction_date: new Date().toISOString().split('T')[0],
+        transaction_type: 'entrada',
+        category: 'Venda',
+        description: `Venda - ${data.product_name}${data.client_name ? ` - ${data.client_name}` : ''}`,
+        amount: data.valor,
+        payment_form: 'Dinheiro',
+      })
+    }
+
     return data
   },
 

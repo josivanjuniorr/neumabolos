@@ -32,7 +32,7 @@ SELECT
   id, 
   production_date, 
   product_name, 
-  quantity,
+  quantity
   client_name,
   status,
   valor,
