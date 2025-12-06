@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks'
-import { MainLayout, Card, StatCard } from '../components'
+import { MainLayout, Card, StatCard, Button } from '../components'
 import {
   LineChart,
   Line,
@@ -25,6 +26,7 @@ import { clientService } from '../services/clientService'
 
 export const Dashboard = () => {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   
@@ -275,30 +277,38 @@ export const Dashboard = () => {
         <Card title="🎂 Encomendas do Dia">
           <div className="space-y-4">
             {/* Filtro de Data das Encomendas */}
-            <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-gray-200">
-              <label className="text-sm font-medium text-gray-700">Data:</label>
-              <input
-                type="date"
-                value={ordersDate}
-                onChange={(e) => setOrdersDate(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button
-                onClick={() => setOrdersDate(new Date().toISOString().split('T')[0])}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-200">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="text-sm font-medium text-gray-700">Data:</label>
+                <input
+                  type="date"
+                  value={ordersDate}
+                  onChange={(e) => setOrdersDate(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <button
+                  onClick={() => setOrdersDate(new Date().toISOString().split('T')[0])}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Hoje
+                </button>
+                <button
+                  onClick={() => {
+                    const yesterday = new Date()
+                    yesterday.setDate(yesterday.getDate() - 1)
+                    setOrdersDate(yesterday.toISOString().split('T')[0])
+                  }}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+                >
+                  Ontem
+                </button>
+              </div>
+              <Button
+                onClick={() => navigate('/production')}
+                variant="primary"
               >
-                Hoje
-              </button>
-              <button
-                onClick={() => {
-                  const yesterday = new Date()
-                  yesterday.setDate(yesterday.getDate() - 1)
-                  setOrdersDate(yesterday.toISOString().split('T')[0])
-                }}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
-              >
-                Ontem
-              </button>
+                + Nova Encomenda
+              </Button>
             </div>
 
             {/* Cards Resumo de Encomendas */}
@@ -342,6 +352,7 @@ export const Dashboard = () => {
                       <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Qtd</th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Valor</th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -361,6 +372,14 @@ export const Dashboard = () => {
                           }`}>
                             {order.status === 'entregue' ? '✓ Entregue' : '⏱ Pendente'}
                           </span>
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          <button
+                            onClick={() => navigate('/production', { state: { orderId: order.id } })}
+                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
+                          >
+                            Ver Detalhes
+                          </button>
                         </td>
                       </tr>
                     ))}
