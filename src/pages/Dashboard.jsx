@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks'
-import { MainLayout, Card, StatCard, Button } from '../components'
+import { useAuth, useForm } from '../hooks'
+import { MainLayout, Card, StatCard, Button, Modal, Input, Select, Alert } from '../components'
 import {
   LineChart,
   Line,
@@ -29,6 +29,10 @@ export const Dashboard = () => {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [editingOrder, setEditingOrder] = useState(null)
+  const [clients, setClients] = useState([])
+  const [error, setError] = useState('')
   
   // Estado para filtros de data
   const now = new Date()
@@ -43,6 +47,20 @@ export const Dashboard = () => {
   const [ordersDate, setOrdersDate] = useState(today)
   const [orders, setOrders] = useState([])
 
+  const initialValues = {
+    production_date: new Date().toISOString().split('T')[0],
+    product_name: '',
+    quantity: '',
+    client_id: '',
+    valor: '',
+    status: 'encomenda',
+    delivery_time: '',
+    observations: '',
+  }
+
+  const { values, handleChange, handleSubmit, isSubmitting, setFieldValue } =
+    useForm(initialValues, onFormSubmit)
+
   useEffect(() => {
     if (!user) return
     loadDashboardData()
@@ -51,7 +69,30 @@ export const Dashboard = () => {
   useEffect(() => {
     if (!user) return
     loadOrders()
+    loadClients()
   }, [user, ordersDate])
+
+  useEffect(() => {
+    if (editingOrder) {
+      setFieldValue('production_date', editingOrder.production_date)
+      setFieldValue('product_name', editingOrder.product_name)
+      setFieldValue('quantity', editingOrder.quantity)
+      setFieldValue('client_id', editingOrder.client_id || '')
+      setFieldValue('valor', editingOrder.valor || '')
+      setFieldValue('status', editingOrder.status || 'encomenda')
+      setFieldValue('delivery_time', editingOrder.delivery_time || '')
+      setFieldValue('observations', editingOrder.observations || '')
+    } else {
+      setFieldValue('production_date', new Date().toISOString().split('T')[0])
+      setFieldValue('product_name', '')
+      setFieldValue('quantity', '')
+      setFieldValue('client_id', '')
+      setFieldValue('valor', '')
+      setFieldValue('status', 'encomenda')
+      setFieldValue('delivery_time', '')
+      setFieldValue('observations', '')
+    }
+  }, [editingOrder, setFieldValue])
 
   const loadOrders = async () => {
     try {
@@ -60,6 +101,46 @@ export const Dashboard = () => {
     } catch (error) {
       console.error('Erro ao carregar encomendas:', error)
     }
+  }
+
+  const loadClients = async () => {
+    try {
+      const data = await clientService.getClients(user.id)
+      setClients(data || [])
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error)
+    }
+  }
+
+  async function onFormSubmit(formData) {
+    try {
+      setError('')
+      
+      const sanitizedData = {
+        ...formData,
+        quantity: parseFloat(formData.quantity),
+        valor: formData.valor ? parseFloat(formData.valor) : null,
+      }
+      
+      if (editingOrder) {
+        await productionService.updateProduction(
+          editingOrder.id,
+          sanitizedData
+        )
+      } else {
+        await productionService.createProduction(user.id, sanitizedData)
+      }
+      await loadOrders()
+      setShowModal(false)
+      setEditingOrder(null)
+    } catch (err) {
+      setError(err.message || 'Erro ao salvar encomenda')
+    }
+  }
+
+  const handleEdit = (order) => {
+    setEditingOrder(order)
+    setShowModal(true)
   }
 
   const loadDashboardData = async () => {
@@ -381,7 +462,7 @@ export const Dashboard = () => {
                           </td>
                           <td className="py-3 px-4 text-sm">
                             <button
-                              onClick={() => navigate('/production', { state: { orderId: order.id } })}
+                              onClick={() => handleEdit(order)}
                               className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
                             >
                               Ver Detalhes
@@ -440,7 +521,7 @@ export const Dashboard = () => {
                       </div>
 
                       <button
-                        onClick={() => navigate('/production', { state: { orderId: order.id } })}
+                        onClick={() => handleEdit(order)}
                         className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                       >
                         Ver Detalhes
@@ -695,6 +776,132 @@ export const Dashboard = () => {
             </div>
           </Card>
         </div>
+
+        {/* Modal de Edição de Encomenda */}
+        <Modal
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false)
+            setEditingOrder(null)
+          }}
+          title={editingOrder ? 'Editar Encomenda' : 'Nova Encomenda'}
+          size="lg"
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert
+                type="error"
+                message={error}
+                onClose={() => setError('')}
+              />
+            )}
+
+            <Input
+              label="Data da Entrega"
+              name="production_date"
+              type="date"
+              value={values.production_date}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Nome do Produto"
+              name="product_name"
+              value={values.product_name}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Quantidade"
+              name="quantity"
+              type="number"
+              step="0.01"
+              value={values.quantity}
+              onChange={handleChange}
+              required
+            />
+
+            <Select
+              label="Cliente"
+              name="client_id"
+              value={values.client_id}
+              onChange={handleChange}
+              options={[
+                { value: '', label: 'Selecione um cliente' },
+                ...clients.map(client => ({
+                  value: client.id,
+                  label: client.name
+                }))
+              ]}
+            />
+
+            <Input
+              label="Valor"
+              name="valor"
+              type="number"
+              step="0.01"
+              value={values.valor}
+              onChange={handleChange}
+              placeholder="Valor da encomenda"
+            />
+
+            <Select
+              label="Status"
+              name="status"
+              value={values.status}
+              onChange={handleChange}
+              options={[
+                { value: 'encomenda', label: 'Encomenda' },
+                { value: 'entregue', label: 'Entregue' },
+              ]}
+              required
+            />
+
+            <Input
+              label="Horário de Entrega"
+              name="delivery_time"
+              type="time"
+              value={values.delivery_time}
+              onChange={handleChange}
+              placeholder="Ex: 14:00"
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Observações
+              </label>
+              <textarea
+                name="observations"
+                value={values.observations}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                rows="3"
+              />
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setShowModal(false)
+                  setEditingOrder(null)
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                isLoading={isSubmitting}
+              >
+                Salvar
+              </Button>
+            </div>
+          </form>
+        </Modal>
       </div>
     </MainLayout>
   )
