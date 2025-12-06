@@ -7,7 +7,7 @@ export const purchaseService = {
       .select(`
         *,
         supplier:suppliers(name),
-        category:ingredient_categories(name),
+        category:purchase_categories(name, type),
         purchase_items(*)
       `)
       .eq('user_id', userId)
@@ -64,7 +64,7 @@ export const purchaseService = {
   async getExpensesByCategory(userId, startDate, endDate) {
     const { data, error } = await supabase
       .from('purchases')
-      .select('total, category:ingredient_categories(name)')
+      .select('total, category:purchase_categories(name, type)')
       .eq('user_id', userId)
       .gte('purchase_date', startDate)
       .lte('purchase_date', endDate)
