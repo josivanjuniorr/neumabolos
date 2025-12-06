@@ -26,7 +26,6 @@ export const PurchaseForm = ({
     supplier_id: purchase?.supplier_id || '',
     category_id: purchase?.category_id || '',
     payment_form: purchase?.payment_form || '',
-    total: purchase?.total || '',
   }
 
   const { values, handleChange, handleSubmit, isSubmitting } =
@@ -110,7 +109,7 @@ export const PurchaseForm = ({
       // Converter campos numéricos e UUIDs
       const sanitizedData = {
         ...formData,
-        total: formData.total === '' ? null : parseFloat(formData.total),
+        total: totalCalculado, // Usar total calculado automaticamente
         category_id: formData.category_id === '' ? null : formData.category_id,
       }
       
@@ -155,6 +154,17 @@ export const PurchaseForm = ({
     newItems[index][field] = value
     setItems(newItems)
   }
+
+  // Calcular total automaticamente
+  const calculateTotal = () => {
+    return items.reduce((sum, item) => {
+      const quantity = parseFloat(item.quantity) || 0
+      const unitPrice = parseFloat(item.unit_price) || 0
+      return sum + (quantity * unitPrice)
+    }, 0)
+  }
+
+  const totalCalculado = calculateTotal()
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -321,15 +331,18 @@ export const PurchaseForm = ({
         </div>
       </div>
 
-      <Input
-        label="Total"
-        name="total"
-        type="number"
-        step="0.01"
-        value={values.total}
-        onChange={handleChange}
-        required
-      />
+      {/* Total calculado automaticamente */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex justify-between items-center">
+          <span className="text-lg font-semibold text-gray-700">Total da Compra:</span>
+          <span className="text-2xl font-bold text-blue-600">
+            R$ {totalCalculado.toFixed(2)}
+          </span>
+        </div>
+        <p className="text-sm text-gray-600 mt-1">
+          Calculado automaticamente com base nos itens
+        </p>
+      </div>
 
       <div className="flex gap-3 justify-end pt-4">
         <Button
