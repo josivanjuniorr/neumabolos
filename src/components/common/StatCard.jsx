@@ -1,3 +1,5 @@
+import { Icon } from './Icon'
+
 export const StatCard = ({
   title,
   value,
@@ -8,30 +10,40 @@ export const StatCard = ({
   onClick,
 }) => {
   const colors = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    red: 'bg-red-50 text-red-600',
-    yellow: 'bg-yellow-50 text-yellow-600',
-    purple: 'bg-purple-50 text-purple-600',
+    blue: 'bg-blue-100 text-blue-600',
+    green: 'bg-green-100 text-green-600',
+    red: 'bg-red-100 text-red-600',
+    yellow: 'bg-yellow-100 text-yellow-600',
+    purple: 'bg-purple-100 text-purple-600',
+    orange: 'bg-orange-100 text-orange-600',
+  }
+
+  const iconMap = {
+    '💰': 'revenue',
+    '💳': 'expenses',
+    '⚙️': 'production',
+    '⚠️': 'waste',
+    '🛒': 'ingredients',
   }
 
   return (
     <div
       onClick={onClick}
       className={`
-        bg-white rounded-lg shadow-sm p-6
-        ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}
+        bg-white rounded-xl shadow-sm p-6 border border-gray-100
+        hover:shadow-md transition-all duration-200
+        ${onClick ? 'cursor-pointer' : ''}
       `}
     >
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-gray-600 text-sm font-medium">{title}</p>
+        <div className="flex-1">
+          <p className="text-gray-600 text-sm font-medium mb-1">{title}</p>
           <p className="text-2xl font-bold text-gray-900 mt-2">
             {value}
           </p>
           {trend && (
             <p
-              className={`text-sm mt-2 ${
+              className={`text-sm mt-2 flex items-center gap-1 ${
                 trend === 'up'
                   ? 'text-green-600'
                   : 'text-red-600'
@@ -44,11 +56,11 @@ export const StatCard = ({
         {icon && (
           <div
             className={`
-              w-12 h-12 rounded-lg flex items-center justify-center text-xl
+              w-12 h-12 rounded-xl flex items-center justify-center
               ${colors[color]}
             `}
           >
-            {icon}
+            <Icon name={iconMap[icon] || 'chart'} className="w-6 h-6" />
           </div>
         )}
       </div>
