@@ -11,7 +11,6 @@ import {
   Waste,
   CashFlow,
   Reports,
-  OperationalExpenses,
 } from './pages'
 
 const ProtectedRoute = ({ children }) => {
@@ -95,15 +94,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CashFlow />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/despesas-operacionais"
-        element={
-          <ProtectedRoute>
-            <OperationalExpenses />
           </ProtectedRoute>
         }
       />

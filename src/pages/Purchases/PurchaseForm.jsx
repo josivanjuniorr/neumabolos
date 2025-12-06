@@ -4,7 +4,7 @@ import { Button, Input, Select, Alert } from '../../components/common'
 import { purchaseService } from '../../services/purchaseService'
 import { supplierService } from '../../services/supplierService'
 import { ingredientService } from '../../services/ingredientService'
-import { purchaseCategoryService } from '../../services/operationalExpenseService'
+import { purchaseCategoryService } from '../../services/categoryService'
 
 export const PurchaseForm = ({
   purchase,
