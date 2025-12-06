@@ -353,6 +353,7 @@ export const Dashboard = () => {
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Cliente</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Qtd</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Valor</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Horário</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Ações</th>
                       </tr>
@@ -365,6 +366,9 @@ export const Dashboard = () => {
                           <td className="py-3 px-4 text-sm text-gray-900">{order.quantity?.toFixed(0) || '-'}</td>
                           <td className="py-3 px-4 text-sm font-semibold text-gray-900">
                             {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
+                          </td>
+                          <td className="py-3 px-4 text-sm text-gray-700">
+                            {order.delivery_time || '-'}
                           </td>
                           <td className="py-3 px-4 text-sm">
                             <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${
@@ -425,6 +429,12 @@ export const Dashboard = () => {
                           <p className="text-xs text-gray-500 mb-0.5">Valor</p>
                           <p className="text-sm font-semibold text-gray-900">
                             {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-0.5">Horário</p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {order.delivery_time || '-'}
                           </p>
                         </div>
                       </div>

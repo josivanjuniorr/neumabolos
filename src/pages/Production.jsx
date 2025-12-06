@@ -21,6 +21,7 @@ export const Production = () => {
     client_id: '',
     valor: '',
     status: 'encomenda',
+    delivery_time: '',
     observations: '',
   }
 
@@ -41,6 +42,7 @@ export const Production = () => {
       setFieldValue('client_id', editingProduction.client_id || '')
       setFieldValue('valor', editingProduction.valor || '')
       setFieldValue('status', editingProduction.status || 'encomenda')
+      setFieldValue('delivery_time', editingProduction.delivery_time || '')
       setFieldValue('observations', editingProduction.observations || '')
     } else {
       setFieldValue('production_date', new Date().toISOString().split('T')[0])
@@ -49,6 +51,7 @@ export const Production = () => {
       setFieldValue('client_id', '')
       setFieldValue('valor', '')
       setFieldValue('status', 'encomenda')
+      setFieldValue('delivery_time', '')
       setFieldValue('observations', '')
     }
   }, [editingProduction, setFieldValue])
@@ -143,6 +146,11 @@ export const Production = () => {
       key: 'valor',
       label: 'Valor',
       render: (value) => value ? `R$ ${value.toFixed(2)}` : '-',
+    },
+    {
+      key: 'delivery_time',
+      label: 'Horário',
+      render: (value) => value || '-',
     },
     { 
       key: 'status', 
@@ -253,6 +261,15 @@ export const Production = () => {
                 { value: 'entregue', label: 'Entregue' },
               ]}
               required
+            />
+
+            <Input
+              label="Horário de Entrega"
+              name="delivery_time"
+              type="time"
+              value={values.delivery_time}
+              onChange={handleChange}
+              placeholder="Ex: 14:00"
             />
 
             <div>
