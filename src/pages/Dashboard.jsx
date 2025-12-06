@@ -34,11 +34,30 @@ export const Dashboard = () => {
   
   const [startDate, setStartDate] = useState(firstDayOfMonth.toISOString().split('T')[0])
   const [endDate, setEndDate] = useState(lastDayOfMonth.toISOString().split('T')[0])
+  
+  // Filtro de encomendas - padrão hoje
+  const today = new Date().toISOString().split('T')[0]
+  const [ordersDate, setOrdersDate] = useState(today)
+  const [orders, setOrders] = useState([])
 
   useEffect(() => {
     if (!user) return
     loadDashboardData()
   }, [user, startDate, endDate])
+
+  useEffect(() => {
+    if (!user) return
+    loadOrders()
+  }, [user, ordersDate])
+
+  const loadOrders = async () => {
+    try {
+      const data = await productionService.getDailyProduction(user.id, ordersDate)
+      setOrders(data || [])
+    } catch (error) {
+      console.error('Erro ao carregar encomendas:', error)
+    }
+  }
 
   const loadDashboardData = async () => {
     try {
@@ -286,6 +305,102 @@ export const Dashboard = () => {
             </div>
           </Card>
         </div>
+
+        {/* Encomendas */}
+        <Card title="Encomendas">
+          <div className="space-y-4">
+            {/* Filtro de Data */}
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700">Data:</label>
+              <input
+                type="date"
+                value={ordersDate}
+                onChange={(e) => setOrdersDate(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <button
+                onClick={() => setOrdersDate(new Date().toISOString().split('T')[0])}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                Hoje
+              </button>
+            </div>
+
+            {/* Lista de Encomendas */}
+            {orders.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">
+                Nenhuma encomenda para esta data
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Produto</th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Cliente</th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Quantidade</th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Valor</th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((order) => (
+                      <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4 text-sm text-gray-900">{order.product_name}</td>
+                        <td className="py-3 px-4 text-sm text-gray-900">{order.client_name || '-'}</td>
+                        <td className="py-3 px-4 text-sm text-gray-900">{order.quantity?.toFixed(2) || '-'}</td>
+                        <td className="py-3 px-4 text-sm text-gray-900">
+                          {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            order.status === 'entregue' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.status === 'entregue' ? 'Entregue' : 'Encomenda'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Resumo */}
+            {orders.length > 0 && (
+              <div className="pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Total de Encomendas</p>
+                    <p className="text-2xl font-bold text-blue-600">{orders.length}</p>
+                  </div>
+                  <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Pendentes</p>
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {orders.filter(o => o.status === 'encomenda').length}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Entregues</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {orders.filter(o => o.status === 'entregue').length}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Valor Total das Encomendas</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      R$ {orders.reduce((sum, o) => sum + (o.valor || 0), 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
 
         {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
