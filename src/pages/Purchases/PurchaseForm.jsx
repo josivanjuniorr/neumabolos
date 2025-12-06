@@ -108,9 +108,11 @@ export const PurchaseForm = ({
       
       // Converter campos numéricos e UUIDs
       const sanitizedData = {
-        ...formData,
-        total: totalCalculado, // Usar total calculado automaticamente
+        purchase_date: formData.purchase_date,
+        supplier_id: formData.supplier_id === '' ? null : formData.supplier_id,
         category_id: formData.category_id === '' ? null : formData.category_id,
+        payment_form: formData.payment_form || null,
+        total: totalCalculado, // Usar total calculado automaticamente
       }
       
       // Sanitizar itens
