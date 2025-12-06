@@ -385,7 +385,10 @@ export const Dashboard = () => {
                 </button>
               </div>
               <Button
-                onClick={() => navigate('/production', { state: { openModal: true } })}
+                onClick={() => {
+                  setEditingOrder(null)
+                  setShowModal(true)
+                }}
                 variant="primary"
               >
                 + Nova Encomenda
