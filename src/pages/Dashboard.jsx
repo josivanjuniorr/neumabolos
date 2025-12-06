@@ -343,49 +343,102 @@ export const Dashboard = () => {
                 Nenhuma encomenda para esta data
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Produto</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Cliente</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Qtd</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Valor</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((order) => (
-                      <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-4 text-sm font-medium text-gray-900">{order.product_name}</td>
-                        <td className="py-3 px-4 text-sm text-gray-700">{order.clients?.name || '-'}</td>
-                        <td className="py-3 px-4 text-sm text-gray-900">{order.quantity?.toFixed(0) || '-'}</td>
-                        <td className="py-3 px-4 text-sm font-semibold text-gray-900">
-                          {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${
-                            order.status === 'entregue' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {order.status === 'entregue' ? '✓ Entregue' : '⏱ Pendente'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          <button
-                            onClick={() => navigate('/production', { state: { orderId: order.id } })}
-                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
-                          >
-                            Ver Detalhes
-                          </button>
-                        </td>
+              <>
+                {/* Versão Desktop - Tabela */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Produto</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Cliente</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Qtd</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Valor</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Ações</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {orders.map((order) => (
+                        <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 text-sm font-medium text-gray-900">{order.product_name}</td>
+                          <td className="py-3 px-4 text-sm text-gray-700">{order.clients?.name || '-'}</td>
+                          <td className="py-3 px-4 text-sm text-gray-900">{order.quantity?.toFixed(0) || '-'}</td>
+                          <td className="py-3 px-4 text-sm font-semibold text-gray-900">
+                            {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
+                          </td>
+                          <td className="py-3 px-4 text-sm">
+                            <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${
+                              order.status === 'entregue' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {order.status === 'entregue' ? '✓ Entregue' : '⏱ Pendente'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-sm">
+                            <button
+                              onClick={() => navigate('/production', { state: { orderId: order.id } })}
+                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
+                            >
+                              Ver Detalhes
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Versão Mobile - Cards */}
+                <div className="md:hidden space-y-3">
+                  {orders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-gray-900 text-base mb-1">
+                            {order.product_name}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {order.clients?.name || 'Sem cliente'}
+                          </p>
+                        </div>
+                        <span className={`inline-flex px-2.5 py-1 text-xs font-bold rounded-full whitespace-nowrap ml-2 ${
+                          order.status === 'entregue' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {order.status === 'entregue' ? '✓ Entregue' : '⏱ Pendente'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <p className="text-xs text-gray-500 mb-0.5">Quantidade</p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {order.quantity?.toFixed(0) || '-'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-0.5">Valor</p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => navigate('/production', { state: { orderId: order.id } })}
+                        className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                      >
+                        Ver Detalhes
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </Card>
@@ -560,23 +613,6 @@ export const Dashboard = () => {
                 </>
               )}
             </div>
-          </Card>
-
-          {/* Gastos por Fornecedor */}
-          <Card title="Top 5 Fornecedores">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.supplierData.slice(0, 5)}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar
-                  dataKey="value"
-                  fill="#3B82F6"
-                  name="Gasto Total"
-                />
-              </BarChart>
-            </ResponsiveContainer>
           </Card>
 
           {/* Top 5 Clientes com Mais Pedidos */}
