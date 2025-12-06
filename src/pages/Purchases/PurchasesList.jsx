@@ -37,9 +37,15 @@ export const PurchasesList = () => {
     setShowModal(true)
   }
 
-  const handleEdit = (purchase) => {
-    setEditingPurchase(purchase)
-    setShowModal(true)
+  const handleEdit = async (purchase) => {
+    try {
+      // Buscar a compra completa com todos os itens
+      const fullPurchase = await purchaseService.getPurchaseById(purchase.id)
+      setEditingPurchase(fullPurchase)
+      setShowModal(true)
+    } catch (error) {
+      console.error('Erro ao carregar compra para edição:', error)
+    }
   }
 
   const handleDelete = async (id) => {

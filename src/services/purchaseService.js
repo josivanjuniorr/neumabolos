@@ -24,6 +24,43 @@ export const purchaseService = {
     return data
   },
 
+  async getPurchaseById(id) {
+    const { data, error } = await supabase
+      .from('purchases')
+      .select(`
+        *,
+        supplier:suppliers(name),
+        category:purchase_categories(name, type)
+      `)
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      console.error('Erro ao buscar compra:', error)
+      throw error
+    }
+
+    // Buscar todos os itens desta compra
+    const { data: items, error: itemsError } = await supabase
+      .from('purchase_items')
+      .select(`
+        *,
+        ingredient:ingredients(name, unit_measure)
+      `)
+      .eq('purchase_id', id)
+      .order('created_at', { ascending: true })
+
+    if (itemsError) {
+      console.error('Erro ao buscar itens da compra:', itemsError)
+      throw itemsError
+    }
+
+    return {
+      ...data,
+      purchase_items: items || [],
+    }
+  },
+
   async createPurchase(userId, purchase, items) {
     // Sanitizar dados antes de enviar
     const sanitizedPurchase = {
@@ -90,7 +127,7 @@ export const purchaseService = {
     return purchaseData
   },
 
-  async updatePurchase(id, updates) {
+  async updatePurchase(id, updates, items) {
     const { data, error } = await supabase
       .from('purchases')
       .update(updates)
@@ -99,6 +136,28 @@ export const purchaseService = {
       .single()
 
     if (error) throw error
+
+    // Se houver itens a atualizar, primeiro deleta os antigos e insere os novos
+    if (items && items.length > 0) {
+      // Deletar itens antigos
+      await supabase.from('purchase_items').delete().eq('purchase_id', id)
+
+      // Inserir novos itens
+      const itemsWithPurchaseId = items.map((item) => ({
+        purchase_id: id,
+        ingredient_id: item.ingredient_id,
+        quantity: parseFloat(item.quantity),
+        unit_price: parseFloat(item.unit_price),
+        total_price: parseFloat(item.quantity) * parseFloat(item.unit_price),
+      }))
+
+      const { error: itemsError } = await supabase
+        .from('purchase_items')
+        .insert(itemsWithPurchaseId)
+
+      if (itemsError) throw itemsError
+    }
+
     return data
   },
 

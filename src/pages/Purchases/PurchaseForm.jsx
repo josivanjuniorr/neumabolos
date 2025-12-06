@@ -38,6 +38,13 @@ export const PurchaseForm = ({
     loadCategories()
   }, [user])
 
+  // Sincronizar itens quando a compra mudar
+  useEffect(() => {
+    if (purchase?.purchase_items) {
+      setItems(purchase.purchase_items)
+    }
+  }, [purchase?.id])
+
   const loadSuppliers = async () => {
     try {
       const data = await supplierService.getSuppliers(user.id)
@@ -143,7 +150,8 @@ export const PurchaseForm = ({
       if (purchase) {
         await purchaseService.updatePurchase(
           purchase.id,
-          sanitizedData
+          sanitizedData,
+          sanitizedItems
         )
       } else {
         await purchaseService.createPurchase(
