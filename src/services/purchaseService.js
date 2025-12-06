@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase'
+import { cashFlowService } from './cashFlowService'
 
 export const purchaseService = {
   async getPurchases(userId) {
@@ -56,6 +57,36 @@ export const purchaseService = {
       .insert(itemsWithPurchaseId)
 
     if (itemsError) throw itemsError
+
+    // Criar saída automática no fluxo de caixa
+    try {
+      // Buscar nome do fornecedor para a descrição
+      let supplierName = 'Fornecedor não informado'
+      if (purchase.supplier_id) {
+        const { data: supplierData } = await supabase
+          .from('suppliers')
+          .select('name')
+          .eq('id', purchase.supplier_id)
+          .single()
+        
+        if (supplierData) {
+          supplierName = supplierData.name
+        }
+      }
+
+      await cashFlowService.createTransaction(userId, {
+        transaction_date: purchase.purchase_date,
+        type: 'saída',
+        category: 'Compras',
+        description: `Compra - ${supplierName}`,
+        amount: purchase.total,
+        payment_form: purchase.payment_form || 'outros',
+      })
+    } catch (cashFlowError) {
+      console.error('Erro ao criar saída no fluxo de caixa:', cashFlowError)
+      // Não falhar a compra se houver erro no fluxo de caixa
+    }
+
     return purchaseData
   },
 
@@ -72,9 +103,43 @@ export const purchaseService = {
   },
 
   async deletePurchase(id) {
+    // Buscar a compra para obter informações antes de deletar
+    const { data: purchase } = await supabase
+      .from('purchases')
+      .select('purchase_date, total, supplier_id, user_id')
+      .eq('id', id)
+      .single()
+
+    // Deletar itens da compra
     await supabase.from('purchase_items').delete().eq('purchase_id', id)
+    
+    // Deletar a compra
     const { error } = await supabase.from('purchases').delete().eq('id', id)
     if (error) throw error
+
+    // Remover a transação correspondente no fluxo de caixa
+    if (purchase) {
+      try {
+        // Buscar e deletar a transação de saída criada para esta compra
+        const { data: transactions } = await supabase
+          .from('cash_flow')
+          .select('id')
+          .eq('user_id', purchase.user_id)
+          .eq('transaction_date', purchase.purchase_date)
+          .eq('type', 'saída')
+          .eq('category', 'Compras')
+          .eq('amount', purchase.total)
+
+        if (transactions && transactions.length > 0) {
+          await supabase
+            .from('cash_flow')
+            .delete()
+            .eq('id', transactions[0].id)
+        }
+      } catch (cashFlowError) {
+        console.error('Erro ao deletar saída do fluxo de caixa:', cashFlowError)
+      }
+    }
   },
 
   async getExpensesByCategory(userId, startDate, endDate) {
