@@ -172,4 +172,3 @@ BEGIN
   RAISE NOTICE 'Total de categorias criadas: %', cat_count;
   RAISE NOTICE '========================================';
 END $$;
---   (auth.uid(), 'Outros', 'Outros', 'Despesas diversas');
