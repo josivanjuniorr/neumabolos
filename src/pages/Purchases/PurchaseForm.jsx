@@ -61,11 +61,13 @@ export const PurchaseForm = ({
     try {
       setLoadingCategories(true)
       const data = await purchaseCategoryService.getCategories(user.id)
+      console.log('Categorias carregadas:', data)
       if (!data || data.length === 0) {
         // Inicializar categorias padrão
         try {
           await purchaseCategoryService.initializeDefaultCategories(user.id)
           const newData = await purchaseCategoryService.getCategories(user.id)
+          console.log('Categorias criadas:', newData)
           setCategories(newData || [])
         } catch (initError) {
           console.error('Erro ao inicializar categorias:', initError)
@@ -110,19 +112,26 @@ export const PurchaseForm = ({
       if (formData.category_id && formData.category_id !== '') {
         const categoryExists = categories.find(c => c.id === formData.category_id)
         if (!categoryExists) {
+          console.error('Categoria não encontrada!', {
+            categoryId: formData.category_id,
+            availableCategories: categories.map(c => ({ id: c.id, name: c.name }))
+          })
           setError('Categoria selecionada não existe. Recarregue a página.')
           return
         }
+        console.log('Categoria válida:', categoryExists)
       }
       
       // Converter campos numéricos e UUIDs
       const sanitizedData = {
         purchase_date: formData.purchase_date,
         supplier_id: formData.supplier_id === '' ? null : formData.supplier_id,
-        category_id: formData.category_id === '' ? null : formData.category_id,
+        category_id: formData.category_id === '' || !formData.category_id ? null : formData.category_id,
         payment_form: formData.payment_form || null,
         total: totalCalculado, // Usar total calculado automaticamente
       }
+
+      console.log('Dados a serem enviados:', sanitizedData)
       
       // Sanitizar itens
       const sanitizedItems = items.map(item => ({
