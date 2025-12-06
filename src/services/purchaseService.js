@@ -8,12 +8,18 @@ export const purchaseService = {
         *,
         supplier:suppliers(name),
         category:purchase_categories(name, type),
-        purchase_items(*)
+        purchase_items(
+          *,
+          ingredient:ingredients(name, unit_measure)
+        )
       `)
       .eq('user_id', userId)
       .order('purchase_date', { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.error('Erro ao buscar compras:', error)
+      throw error
+    }
     return data
   },
 

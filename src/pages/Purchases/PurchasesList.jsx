@@ -23,6 +23,10 @@ export const PurchasesList = () => {
       setPurchases(data || [])
     } catch (error) {
       console.error('Erro ao carregar compras:', error)
+      // Se o erro for de foreign key, mostrar mensagem mais clara
+      if (error.message?.includes('foreign key') || error.message?.includes('violates')) {
+        alert('⚠️ Existem compras com categorias inválidas. Recomenda-se limpar os dados antigos.\n\nExecute no Supabase SQL Editor:\n\nUPDATE purchases SET category_id = NULL WHERE category_id IS NOT NULL AND category_id NOT IN (SELECT id FROM purchase_categories);')
+      }
     } finally {
       setLoading(false)
     }
