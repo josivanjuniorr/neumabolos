@@ -10,7 +10,11 @@ ADD COLUMN IF NOT EXISTS client_name VARCHAR(255);
 ALTER TABLE daily_production 
 ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'encomenda';
 
--- 3. Migrar dados de destination para status (se aplicável)
+-- 3. Adicionar nova coluna valor
+ALTER TABLE daily_production 
+ADD COLUMN IF NOT EXISTS valor NUMERIC(10,2);
+
+-- 4. Migrar dados de destination para status (se aplicável)
 UPDATE daily_production 
 SET status = CASE 
   WHEN destination = 'encomenda' THEN 'encomenda'
@@ -18,12 +22,12 @@ SET status = CASE
 END
 WHERE destination IS NOT NULL;
 
--- 4. Remover colunas antigas (CUIDADO: isso apaga os dados dessas colunas)
+-- 5. Remover colunas antigas (CUIDADO: isso apaga os dados dessas colunas)
 -- Descomente as linhas abaixo apenas se tiver certeza
 -- ALTER TABLE daily_production DROP COLUMN IF EXISTS estimated_cost;
 -- ALTER TABLE daily_production DROP COLUMN IF EXISTS destination;
 
--- 5. Verificar resultado
+-- 6. Verificar resultado
 SELECT 
   id, 
   production_date, 
@@ -31,6 +35,7 @@ SELECT
   quantity,
   client_name,
   status,
+  valor,
   observations
 FROM daily_production
 ORDER BY production_date DESC

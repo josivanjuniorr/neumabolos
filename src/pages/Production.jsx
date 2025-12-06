@@ -36,6 +36,7 @@ export const Production = () => {
     product_name: editingProduction?.product_name || '',
     quantity: editingProduction?.quantity || '',
     client_name: editingProduction?.client_name || '',
+    valor: editingProduction?.valor || '',
     status: editingProduction?.status || 'encomenda',
     observations: editingProduction?.observations || '',
   }
@@ -51,6 +52,7 @@ export const Production = () => {
       const sanitizedData = {
         ...formData,
         quantity: parseFloat(formData.quantity),
+        valor: formData.valor ? parseFloat(formData.valor) : null,
       }
       
       if (editingProduction) {
@@ -101,6 +103,11 @@ export const Production = () => {
       render: (value) => value.toFixed(2),
     },
     { key: 'client_name', label: 'Cliente' },
+    {
+      key: 'valor',
+      label: 'Valor',
+      render: (value) => value ? `R$ ${value.toFixed(2)}` : '-',
+    },
     { 
       key: 'status', 
       label: 'Status',
@@ -182,6 +189,16 @@ export const Production = () => {
               value={values.client_name}
               onChange={handleChange}
               placeholder="Nome do cliente"
+            />
+
+            <Input
+              label="Valor"
+              name="valor"
+              type="number"
+              step="0.01"
+              value={values.valor}
+              onChange={handleChange}
+              placeholder="Valor da encomenda"
             />
 
             <Select
