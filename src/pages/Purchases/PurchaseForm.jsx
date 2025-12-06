@@ -105,6 +105,15 @@ export const PurchaseForm = ({
         setError('Preencha todos os campos dos itens')
         return
       }
+
+      // Validar category_id se fornecido
+      if (formData.category_id && formData.category_id !== '') {
+        const categoryExists = categories.find(c => c.id === formData.category_id)
+        if (!categoryExists) {
+          setError('Categoria selecionada não existe. Recarregue a página.')
+          return
+        }
+      }
       
       // Converter campos numéricos e UUIDs
       const sanitizedData = {
