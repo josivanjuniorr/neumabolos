@@ -304,7 +304,7 @@ export const Dashboard = () => {
                 </button>
               </div>
               <Button
-                onClick={() => navigate('/production')}
+                onClick={() => navigate('/production', { state: { openModal: true } })}
                 variant="primary"
               >
                 + Nova Encomenda

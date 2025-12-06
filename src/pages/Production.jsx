@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useAuth, useForm } from '../hooks'
 import { MainLayout, Card, Button, Table, Modal, Input, Select, Alert } from '../components'
 import { productionService } from '../services/productionService'
@@ -6,6 +7,7 @@ import { clientService } from '../services/clientService'
 
 export const Production = () => {
   const { user } = useAuth()
+  const location = useLocation()
   const [production, setProduction] = useState([])
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
@@ -30,9 +32,28 @@ export const Production = () => {
 
   useEffect(() => {
     if (!user) return
-    loadProduction()
+    // Se vier com orderId, carregar todas as produções
+    const shouldLoadAll = location.state?.orderId
+    loadProduction(shouldLoadAll)
     loadClients()
   }, [user])
+
+  // Verificar se há um orderId no state da navegação para editar
+  useEffect(() => {
+    if (location.state?.orderId && production.length > 0) {
+      const order = production.find(p => p.id === location.state.orderId)
+      if (order) {
+        handleEdit(order)
+      }
+    }
+  }, [location.state?.orderId, production])
+
+  // Verificar se deve abrir modal para nova encomenda
+  useEffect(() => {
+    if (location.state?.openModal) {
+      setShowModal(true)
+    }
+  }, [location.state?.openModal])
 
   useEffect(() => {
     if (editingProduction) {
@@ -56,12 +77,21 @@ export const Production = () => {
     }
   }, [editingProduction, setFieldValue])
 
-  const loadProduction = async () => {
+  const loadProduction = async (loadAll = false) => {
     try {
       setLoading(true)
-      const today = new Date().toISOString().split('T')[0]
-      const data =
-        await productionService.getDailyProduction(user.id, today)
+      let data
+      if (loadAll) {
+        // Carregar todas as produções para encontrar uma encomenda específica
+        data = await productionService.getProductionByDateRange(
+          user.id,
+          '2020-01-01', // Data inicial ampla
+          new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // +1 ano
+        )
+      } else {
+        const today = new Date().toISOString().split('T')[0]
+        data = await productionService.getDailyProduction(user.id, today)
+      }
       setProduction(data || [])
     } catch (error) {
       console.error('Erro ao carregar produção:', error)
