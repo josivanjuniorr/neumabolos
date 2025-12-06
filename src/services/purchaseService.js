@@ -18,9 +18,19 @@ export const purchaseService = {
   },
 
   async createPurchase(userId, purchase, items) {
+    // Sanitizar dados antes de enviar
+    const sanitizedPurchase = {
+      user_id: userId,
+      purchase_date: purchase.purchase_date,
+      supplier_id: purchase.supplier_id || null,
+      category_id: purchase.category_id || null,
+      payment_form: purchase.payment_form || null,
+      total: purchase.total,
+    }
+
     const { data: purchaseData, error: purchaseError } = await supabase
       .from('purchases')
-      .insert([{ user_id: userId, ...purchase }])
+      .insert([sanitizedPurchase])
       .select()
       .single()
 
