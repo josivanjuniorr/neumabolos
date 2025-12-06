@@ -35,8 +35,8 @@ export const Production = () => {
     production_date: editingProduction?.production_date || new Date().toISOString().split('T')[0],
     product_name: editingProduction?.product_name || '',
     quantity: editingProduction?.quantity || '',
-    estimated_cost: editingProduction?.estimated_cost || '',
-    destination: editingProduction?.destination || '',
+    client_name: editingProduction?.client_name || '',
+    status: editingProduction?.status || 'encomenda',
     observations: editingProduction?.observations || '',
   }
 
@@ -47,12 +47,10 @@ export const Production = () => {
     try {
       setError('')
       
-      // Converter campos numéricos e UUIDs
+      // Converter campos numéricos
       const sanitizedData = {
         ...formData,
         quantity: parseFloat(formData.quantity),
-        estimated_cost: parseFloat(formData.estimated_cost),
-        ingredient_id: formData.ingredient_id === '' ? null : formData.ingredient_id,
       }
       
       if (editingProduction) {
@@ -102,12 +100,12 @@ export const Production = () => {
       label: 'Quantidade',
       render: (value) => value.toFixed(2),
     },
-    {
-      key: 'estimated_cost',
-      label: 'Custo Estimado',
-      render: (value) => `R$ ${value.toFixed(2)}`,
+    { key: 'client_name', label: 'Cliente' },
+    { 
+      key: 'status', 
+      label: 'Status',
+      render: (value) => value === 'encomenda' ? 'Encomenda' : 'Entregue'
     },
-    { key: 'destination', label: 'Destino' },
   ]
 
   return (
@@ -179,24 +177,21 @@ export const Production = () => {
             />
 
             <Input
-              label="Custo Estimado"
-              name="estimated_cost"
-              type="number"
-              step="0.01"
-              value={values.estimated_cost}
+              label="Cliente"
+              name="client_name"
+              value={values.client_name}
               onChange={handleChange}
-              required
+              placeholder="Nome do cliente"
             />
 
             <Select
-              label="Destino"
-              name="destination"
-              value={values.destination}
+              label="Status"
+              name="status"
+              value={values.status}
               onChange={handleChange}
               options={[
-                { value: 'venda', label: 'Venda' },
                 { value: 'encomenda', label: 'Encomenda' },
-                { value: 'pronta_entrega', label: 'Pronta Entrega' },
+                { value: 'entregue', label: 'Entregue' },
               ]}
               required
             />
