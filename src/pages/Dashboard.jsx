@@ -284,34 +284,70 @@ export const Dashboard = () => {
 
           {/* Gastos por Categoria */}
           <Card title="Gastos por Categoria">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={data.categoryData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) =>
-                    `${name}: R$ ${value.toFixed(0)}`
-                  }
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {data.categoryData.map(
-                    (entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          COLORS[index % COLORS.length]
-                        }
-                      />
-                    )
-                  )}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="space-y-4">
+              {data.categoryData.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">
+                  Nenhuma despesa categorizada no período
+                </p>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    {data.categoryData
+                      .sort((a, b) => b.value - a.value)
+                      .map((category, index) => {
+                        const percentage = data.totalRevenue > 0 
+                          ? (category.value / data.totalRevenue * 100)
+                          : 0
+                        const percentageOfTotal = data.totalExpenses > 0
+                          ? (category.value / data.totalExpenses * 100)
+                          : 0
+                        
+                        return (
+                          <div key={category.name} className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <div 
+                                  className="w-3 h-3 rounded-full" 
+                                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                                />
+                                <span className="text-sm font-medium text-gray-700">
+                                  {category.name}
+                                </span>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-sm font-bold text-gray-900">
+                                  R$ {category.value.toFixed(2)}
+                                </span>
+                                <span className="text-xs text-gray-500 ml-2">
+                                  ({percentage.toFixed(1)}% do faturamento)
+                                </span>
+                              </div>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="h-2 rounded-full transition-all"
+                                style={{
+                                  width: `${Math.min(percentageOfTotal, 100)}%`,
+                                  backgroundColor: COLORS[index % COLORS.length]
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                  </div>
+                  
+                  <div className="pt-3 border-t border-gray-200">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-gray-700">Total de Despesas</span>
+                      <span className="font-bold text-gray-900">
+                        R$ {data.totalExpenses.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </Card>
 
           {/* Gastos por Fornecedor */}
