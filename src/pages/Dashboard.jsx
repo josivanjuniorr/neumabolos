@@ -103,6 +103,12 @@ export const Dashboard = () => {
           0
         )
 
+        // Calcular faturamento (entradas do fluxo de caixa)
+        const totalRevenue = Object.values(dailyFlow).reduce(
+          (sum, flow) => sum + flow.entrada,
+          0
+        )
+
         const chartData = Object.entries(dailyFlow).map(
           ([date, flow]) => ({
             date: new Date(date).toLocaleDateString('pt-BR'),
@@ -126,6 +132,7 @@ export const Dashboard = () => {
         }))
 
         setData({
+          totalRevenue,
           totalExpenses,
           totalProduction,
           totalWaste,
@@ -173,23 +180,73 @@ export const Dashboard = () => {
         {/* Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
+            title="Faturamento (Mês)"
+            value={`R$ ${data.totalRevenue.toFixed(2)}`}
+            icon="💰"
+            color="green"
+          />
+          <StatCard
             title="Total de Gastos (Mês)"
             value={`R$ ${data.totalExpenses.toFixed(2)}`}
             icon="💳"
-            color="blue"
+            color="red"
           />
           <StatCard
             title="Custo de Produção"
             value={`R$ ${data.totalProduction.toFixed(2)}`}
             icon="⚙️"
-            color="green"
+            color="blue"
           />
           <StatCard
             title="Desperdício"
             value={`R$ ${data.totalWaste.toFixed(2)}`}
             icon="⚠️"
-            color="red"
+            color="orange"
           />
+        </div>
+
+        {/* Card de Resumo Financeiro */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <Card title="Resumo do Mês">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">Faturamento</span>
+                <span className="text-lg font-bold text-green-600">
+                  R$ {data.totalRevenue.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">Despesas</span>
+                <span className="text-lg font-bold text-red-600">
+                  R$ {data.totalExpenses.toFixed(2)}
+                </span>
+              </div>
+              <div className="h-px bg-gray-300"></div>
+              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">Lucro/Prejuízo</span>
+                <span className={`text-lg font-bold ${
+                  data.totalRevenue - data.totalExpenses >= 0 
+                    ? 'text-blue-600' 
+                    : 'text-red-600'
+                }`}>
+                  R$ {(data.totalRevenue - data.totalExpenses).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">Margem</span>
+                <span className={`text-lg font-bold ${
+                  ((data.totalRevenue - data.totalExpenses) / data.totalRevenue * 100) >= 0 
+                    ? 'text-blue-600' 
+                    : 'text-red-600'
+                }`}>
+                  {data.totalRevenue > 0 
+                    ? ((data.totalRevenue - data.totalExpenses) / data.totalRevenue * 100).toFixed(1) 
+                    : '0.0'}%
+                </span>
+              </div>
+            </div>
+          </Card>
+
           <StatCard
             title="Insumos Cadastrados"
             value={data.ingredientCount}
