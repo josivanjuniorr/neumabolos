@@ -12,10 +12,43 @@ export const Production = () => {
     useState(null)
   const [error, setError] = useState('')
 
+  const initialValues = {
+    production_date: new Date().toISOString().split('T')[0],
+    product_name: '',
+    quantity: '',
+    client_name: '',
+    valor: '',
+    status: 'encomenda',
+    observations: '',
+  }
+
+  const { values, handleChange, handleSubmit, isSubmitting, setFieldValue } =
+    useForm(initialValues, onFormSubmit)
+
   useEffect(() => {
     if (!user) return
     loadProduction()
   }, [user])
+
+  useEffect(() => {
+    if (editingProduction) {
+      setFieldValue('production_date', editingProduction.production_date)
+      setFieldValue('product_name', editingProduction.product_name)
+      setFieldValue('quantity', editingProduction.quantity)
+      setFieldValue('client_name', editingProduction.client_name || '')
+      setFieldValue('valor', editingProduction.valor || '')
+      setFieldValue('status', editingProduction.status || 'encomenda')
+      setFieldValue('observations', editingProduction.observations || '')
+    } else {
+      setFieldValue('production_date', new Date().toISOString().split('T')[0])
+      setFieldValue('product_name', '')
+      setFieldValue('quantity', '')
+      setFieldValue('client_name', '')
+      setFieldValue('valor', '')
+      setFieldValue('status', 'encomenda')
+      setFieldValue('observations', '')
+    }
+  }, [editingProduction, setFieldValue])
 
   const loadProduction = async () => {
     try {
@@ -30,19 +63,6 @@ export const Production = () => {
       setLoading(false)
     }
   }
-
-  const initialValues = {
-    production_date: editingProduction?.production_date || new Date().toISOString().split('T')[0],
-    product_name: editingProduction?.product_name || '',
-    quantity: editingProduction?.quantity || '',
-    client_name: editingProduction?.client_name || '',
-    valor: editingProduction?.valor || '',
-    status: editingProduction?.status || 'encomenda',
-    observations: editingProduction?.observations || '',
-  }
-
-  const { values, handleChange, handleSubmit, isSubmitting } =
-    useForm(initialValues, onFormSubmit)
 
   async function onFormSubmit(formData) {
     try {
