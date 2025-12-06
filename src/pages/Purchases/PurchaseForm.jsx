@@ -261,73 +261,112 @@ export const PurchaseForm = ({
             size="sm"
             onClick={handleAddItem}
           >
-            + Item
+            + Adicionar Item
           </Button>
         </div>
 
-        <div className="space-y-3 max-h-64 overflow-y-auto">
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white p-3 rounded-lg space-y-2"
-            >
-              <Select
-                label="Insumo"
-                value={item.ingredient_id}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    'ingredient_id',
-                    e.target.value
-                  )
-                }
-                options={ingredients.map((ing) => ({
-                  value: ing.id,
-                  label: `${ing.name} (${ing.unit_measure})`,
-                }))}
-                required
-              />
+        <div className="space-y-3">
+          {items.length === 0 && (
+            <p className="text-center text-gray-500 py-4">
+              Nenhum item adicionado. Clique em "Adicionar Item" para começar.
+            </p>
+          )}
+          
+          {items.map((item, index) => {
+            const itemQuantity = parseFloat(item.quantity) || 0
+            const itemUnitPrice = parseFloat(item.unit_price) || 0
+            const itemTotal = itemQuantity * itemUnitPrice
 
-              <Input
-                label="Quantidade"
-                type="number"
-                step="0.01"
-                value={item.quantity}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    'quantity',
-                    e.target.value
-                  )
-                }
-                required
-              />
-
-              <Input
-                label="Preço Unitário"
-                type="number"
-                step="0.01"
-                value={item.unit_price}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    'unit_price',
-                    e.target.value
-                  )
-                }
-                required
-              />
-
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() => handleRemoveItem(index)}
+            return (
+              <div
+                key={index}
+                className="bg-white p-4 rounded-lg border border-gray-200"
               >
-                Remover
-              </Button>
-            </div>
-          ))}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                  {/* Insumo - 5 colunas */}
+                  <div className="md:col-span-5">
+                    <Select
+                      label="Insumo"
+                      value={item.ingredient_id}
+                      onChange={(e) =>
+                        handleItemChange(
+                          index,
+                          'ingredient_id',
+                          e.target.value
+                        )
+                      }
+                      options={ingredients.map((ing) => ({
+                        value: ing.id,
+                        label: `${ing.name} (${ing.unit_measure})`,
+                      }))}
+                      required
+                    />
+                  </div>
+
+                  {/* Quantidade - 2 colunas */}
+                  <div className="md:col-span-2">
+                    <Input
+                      label="Qtd."
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleItemChange(
+                          index,
+                          'quantity',
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Preço Unitário - 2 colunas */}
+                  <div className="md:col-span-2">
+                    <Input
+                      label="Preço Unit."
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={item.unit_price}
+                      onChange={(e) =>
+                        handleItemChange(
+                          index,
+                          'unit_price',
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Subtotal - 2 colunas */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Subtotal
+                    </label>
+                    <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 font-semibold">
+                      R$ {itemTotal.toFixed(2)}
+                    </div>
+                  </div>
+
+                  {/* Botão Remover - 1 coluna */}
+                  <div className="md:col-span-1">
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleRemoveItem(index)}
+                      className="w-full"
+                    >
+                      ×
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
