@@ -6,6 +6,7 @@ export const Select = ({
   required = false,
   className = '',
   placeholder = 'Selecione uma opção',
+  children,
   ...props
 }) => {
   return (
@@ -30,12 +31,16 @@ export const Select = ({
         `}
         {...props}
       >
-        <option value="">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {children || (
+          <>
+            <option value="">{placeholder}</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </>
+        )}
       </select>
       {error && touched && (
         <p className="text-red-500 text-sm mt-1">{error}</p>
