@@ -1,6 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks'
 import { Icon } from '../common'
+import { useEffect, useState } from 'react'
+import { authService } from '../../services/authService'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
@@ -13,13 +15,35 @@ const navigation = [
   { name: 'Caixa', href: '/caixa', icon: 'cashFlow' },
   { name: 'Relatórios', href: '/relatorios', icon: 'reports' },
   { name: 'Auditoria', href: '/auditoria', icon: 'reports' },
+]
+
+const adminNavigation = [
+  { name: 'Usuários', href: '/usuarios', icon: 'suppliers' },
+]
+
+const userNavigation = [
   { name: 'Perfil', href: '/perfil', icon: 'suppliers' },
 ]
 
 export const Sidebar = () => {
   const location = useLocation()
+  const { user } = useAuth()
+  const [profile, setProfile] = useState(null)
+
+  useEffect(() => {
+    if (user) {
+      authService.getUserProfile(user.id).then(setProfile)
+    }
+  }, [user])
 
   const isActive = (href) => location.pathname === href
+
+  const isAdmin = profile?.role === 'admin'
+  const menuItems = [
+    ...navigation,
+    ...(isAdmin ? adminNavigation : []),
+    ...userNavigation,
+  ]
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-gray-900 border-r border-gray-800 overflow-y-auto">
@@ -38,7 +62,7 @@ export const Sidebar = () => {
       </div>
 
       <nav className="py-6 space-y-1 px-4">
-        {navigation.map((item) => (
+        {menuItems.map((item) => (
           <Link
             key={item.href}
             to={item.href}

@@ -17,11 +17,33 @@ CREATE POLICY "Users can view own profile"
   FOR SELECT
   USING (auth.uid() = id);
 
+-- Política: Admins podem ver todos os perfis
+CREATE POLICY "Admins can view all profiles"
+  ON user_profiles
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
 -- Política: Usuários podem atualizar apenas seu próprio perfil
 CREATE POLICY "Users can update own profile"
   ON user_profiles
   FOR UPDATE
   USING (auth.uid() = id);
+
+-- Política: Admins podem atualizar qualquer perfil
+CREATE POLICY "Admins can update any profile"
+  ON user_profiles
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
 
 -- Política: Sistema pode inserir perfis (durante signup)
 CREATE POLICY "System can insert profiles"

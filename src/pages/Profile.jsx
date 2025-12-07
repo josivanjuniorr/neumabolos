@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks'
-import { MainLayout, Card, Input, Button, Alert } from '../components'
+import { MainLayout, Card, Input, Button, Alert, Select } from '../components'
 import { authService } from '../services/authService'
+
+const ROLES = {
+  user: 'Usuário',
+  manager: 'Gerente',
+  admin: 'Administrador',
+}
 
 export const Profile = () => {
   const { user } = useAuth()
@@ -13,6 +19,7 @@ export const Profile = () => {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
+    role: 'user',
   })
 
   useEffect(() => {
@@ -27,6 +34,7 @@ export const Profile = () => {
       setFormData({
         full_name: data.full_name || '',
         email: data.email || user.email,
+        role: data.role || 'user',
       })
     } catch (err) {
       console.error('Erro ao carregar perfil:', err)
@@ -49,9 +57,14 @@ export const Profile = () => {
       setError('')
       setSuccess('')
 
-      await authService.updateUserProfile(user.id, {
-        full_name: formData.full_name,
-      })
+      const updates = { full_name: formData.full_name }
+      
+      // Apenas admin pode alterar cargo
+      if (profile?.role === 'admin') {
+        updates.role = formData.role
+      }
+
+      await authService.updateUserProfile(user.id, updates)
 
       setSuccess('Perfil atualizado com sucesso!')
       await loadProfile()
@@ -116,6 +129,21 @@ export const Profile = () => {
                 helperText="O email não pode ser alterado"
               />
 
+              {profile?.role === 'admin' && (
+                <Select
+                  label="Cargo"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  options={[
+                    { value: 'user', label: 'Usuário' },
+                    { value: 'manager', label: 'Gerente' },
+                    { value: 'admin', label: 'Administrador' },
+                  ]}
+                  helperText="Apenas administradores podem alterar o cargo"
+                />
+              )}
+
               <div className="flex justify-end pt-4">
                 <Button
                   type="submit"
@@ -135,7 +163,7 @@ export const Profile = () => {
                   Função
                 </span>
                 <span className="text-sm text-gray-900 dark:text-white">
-                  {profile?.role === 'admin' ? 'Administrador' : 'Usuário'}
+                  {ROLES[profile?.role] || 'Usuário'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">

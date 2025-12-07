@@ -14,6 +14,7 @@ import {
   Reports,
   Audit,
   Profile,
+  Users,
 } from './pages'
 
 const ProtectedRoute = ({ children }) => {
@@ -133,6 +134,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/usuarios"
+        element={
+          <ProtectedRoute>
+            <Users />
           </ProtectedRoute>
         }
       />

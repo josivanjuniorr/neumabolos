@@ -2,6 +2,12 @@ import { useAuth, useTheme } from '../../hooks'
 import { useEffect, useState } from 'react'
 import { authService } from '../../services/authService'
 
+const ROLES = {
+  user: 'Usuário',
+  manager: 'Gerente',
+  admin: 'Administrador',
+}
+
 export const Header = () => {
   const { user, signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
@@ -48,7 +54,7 @@ export const Header = () => {
               {profile?.full_name || user?.email}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {profile?.role || 'Usuário'}
+              {ROLES[profile?.role] || 'Usuário'}
             </p>
           </div>
           <div className="w-10 h-10 bg-gray-900 dark:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
