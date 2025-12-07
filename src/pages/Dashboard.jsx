@@ -598,12 +598,12 @@ export const Dashboard = () => {
                   R$ {(data.totalRevenue - data.totalExpenses).toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Margem</span>
+              <div className="flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Margem</span>
                 <span className={`text-lg font-bold ${
                   ((data.totalRevenue - data.totalExpenses) / data.totalRevenue * 100) >= 0 
-                    ? 'text-blue-600' 
-                    : 'text-red-600'
+                    ? 'text-gray-900 dark:text-white' 
+                    : 'text-gray-700 dark:text-gray-400'
                 }`}>
                   {data.totalRevenue > 0 
                     ? ((data.totalRevenue - data.totalExpenses) / data.totalRevenue * 100).toFixed(1) 
