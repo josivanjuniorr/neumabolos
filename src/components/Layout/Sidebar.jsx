@@ -32,13 +32,20 @@ export const Sidebar = () => {
 
   useEffect(() => {
     if (user) {
-      authService.getUserProfile(user.id).then(setProfile)
+      authService.getUserProfile(user.id).then((data) => {
+        console.log('Profile loaded:', data)
+        setProfile(data)
+      }).catch(err => {
+        console.error('Error loading profile:', err)
+      })
     }
   }, [user, profileVersion])
 
   const isActive = (href) => location.pathname === href
 
   const isAdmin = profile?.role === 'admin'
+  console.log('Sidebar - isAdmin:', isAdmin, 'profile:', profile)
+  
   const menuItems = [
     ...navigation,
     ...(isAdmin ? adminNavigation : []),

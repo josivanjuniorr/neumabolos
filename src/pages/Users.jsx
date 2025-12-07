@@ -27,10 +27,14 @@ export const Users = () => {
   const loadUsers = async () => {
     try {
       setLoading(true)
+      setError('')
+      console.log('Carregando usuários...')
       const data = await authService.getAllUsers()
+      console.log('Usuários carregados:', data)
       setUsers(data || [])
     } catch (err) {
       console.error('Erro ao carregar usuários:', err)
+      setError(`Erro ao carregar usuários: ${err.message}`)
     } finally {
       setLoading(false)
     }
@@ -137,6 +141,14 @@ export const Users = () => {
             type="success"
             message={success}
             onClose={() => setSuccess('')}
+          />
+        )}
+
+        {error && (
+          <Alert
+            type="error"
+            message={error}
+            onClose={() => setError('')}
           />
         )}
 
