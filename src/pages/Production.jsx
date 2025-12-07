@@ -29,6 +29,8 @@ export const Production = () => {
 
   const initialValues = {
     production_date: new Date().toISOString().split('T')[0],
+    order_date: new Date().toISOString().split('T')[0],
+    delivery_date: '',
     product_name: '',
     quantity: '',
     client_id: '',
@@ -69,6 +71,8 @@ export const Production = () => {
   useEffect(() => {
     if (editingProduction) {
       setFieldValue('production_date', editingProduction.production_date)
+      setFieldValue('order_date', editingProduction.order_date || new Date().toISOString().split('T')[0])
+      setFieldValue('delivery_date', editingProduction.delivery_date || '')
       setFieldValue('product_name', editingProduction.product_name)
       setFieldValue('quantity', editingProduction.quantity)
       setFieldValue('client_id', editingProduction.client_id || '')
@@ -78,6 +82,8 @@ export const Production = () => {
       setFieldValue('observations', editingProduction.observations || '')
     } else {
       setFieldValue('production_date', new Date().toISOString().split('T')[0])
+      setFieldValue('order_date', new Date().toISOString().split('T')[0])
+      setFieldValue('delivery_date', '')
       setFieldValue('product_name', '')
       setFieldValue('quantity', '')
       setFieldValue('client_id', '')
@@ -170,10 +176,14 @@ export const Production = () => {
 
   const columns = [
     {
-      key: 'production_date',
-      label: 'Data',
-      render: (value) =>
-        new Date(value).toLocaleDateString('pt-BR'),
+      key: 'order_date',
+      label: 'Data Encomenda',
+      render: (value) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
+    },
+    {
+      key: 'delivery_date',
+      label: 'Data Entrega',
+      render: (value) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
     },
     { key: 'product_name', label: 'Produto' },
     {
@@ -294,6 +304,25 @@ export const Production = () => {
                 onClose={() => setError('')}
               />
             )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Data da Encomenda"
+                name="order_date"
+                type="date"
+                value={values.order_date}
+                onChange={handleChange}
+                required
+              />
+
+              <Input
+                label="Data de Entrega"
+                name="delivery_date"
+                type="date"
+                value={values.delivery_date}
+                onChange={handleChange}
+              />
+            </div>
 
             <Input
               label="Data da Produção"
