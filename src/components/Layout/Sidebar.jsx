@@ -83,7 +83,7 @@ export const Sidebar = () => {
             </svg>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">ConfeitApp</h1>
+            <h1 className="text-xl font-bold text-white">Neuma Mendes Confeitaria</h1>
             <p className="text-xs text-gray-400">Controle de Gastos</p>
           </div>
         </div>
