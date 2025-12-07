@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, ThemeProvider, useAuth } from './hooks'
+import { RoleProtectedRoute } from './components'
 import {
   Login,
   Signup,
@@ -17,7 +18,7 @@ import {
   Users,
 } from './pages'
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredPath }) => {
   const { isAuthenticated, loading } = useAuth()
 
   if (loading) {
@@ -28,7 +29,15 @@ const ProtectedRoute = ({ children }) => {
     )
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />
+  }
+
+  return requiredPath ? (
+    <RoleProtectedRoute requiredPath={requiredPath}>
+      {children}
+    </RoleProtectedRoute>
+  ) : children
 }
 
 function AppRoutes() {
@@ -42,7 +51,7 @@ function AppRoutes() {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/dashboard">
             <Dashboard />
           </ProtectedRoute>
         }
@@ -51,7 +60,7 @@ function AppRoutes() {
       <Route
         path="/ingredientes"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/ingredientes">
             <IngredientsList />
           </ProtectedRoute>
         }
@@ -60,7 +69,7 @@ function AppRoutes() {
       <Route
         path="/compras"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/compras">
             <PurchasesList />
           </ProtectedRoute>
         }
@@ -69,7 +78,7 @@ function AppRoutes() {
       <Route
         path="/fornecedores"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/fornecedores">
             <Suppliers />
           </ProtectedRoute>
         }
@@ -78,7 +87,7 @@ function AppRoutes() {
       <Route
         path="/clientes"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/clientes">
             <Clients />
           </ProtectedRoute>
         }
@@ -87,7 +96,7 @@ function AppRoutes() {
       <Route
         path="/producao"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/producao">
             <Production />
           </ProtectedRoute>
         }
@@ -96,7 +105,7 @@ function AppRoutes() {
       <Route
         path="/desperdicio"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/desperdicio">
             <Waste />
           </ProtectedRoute>
         }
@@ -105,7 +114,7 @@ function AppRoutes() {
       <Route
         path="/caixa"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/caixa">
             <CashFlow />
           </ProtectedRoute>
         }
@@ -114,7 +123,7 @@ function AppRoutes() {
       <Route
         path="/relatorios"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/relatorios">
             <Reports />
           </ProtectedRoute>
         }
@@ -123,7 +132,7 @@ function AppRoutes() {
       <Route
         path="/auditoria"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/auditoria">
             <Audit />
           </ProtectedRoute>
         }
@@ -132,7 +141,7 @@ function AppRoutes() {
       <Route
         path="/perfil"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/perfil">
             <Profile />
           </ProtectedRoute>
         }
@@ -141,7 +150,7 @@ function AppRoutes() {
       <Route
         path="/usuarios"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPath="/usuarios">
             <Users />
           </ProtectedRoute>
         }

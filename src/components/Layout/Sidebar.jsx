@@ -4,7 +4,26 @@ import { Icon } from '../common'
 import { useEffect, useState } from 'react'
 import { authService } from '../../services/authService'
 
-const navigation = [
+// Menus base para cada cargo
+const userNavigation = [
+  { name: 'Insumos', href: '/ingredientes', icon: 'ingredients' },
+  { name: 'Compras', href: '/compras', icon: 'purchases' },
+  { name: 'Fornecedores', href: '/fornecedores', icon: 'suppliers' },
+  { name: 'Clientes', href: '/clientes', icon: 'suppliers' },
+  { name: 'Produção', href: '/producao', icon: 'production' },
+]
+
+const managerNavigation = [
+  { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+  { name: 'Insumos', href: '/ingredientes', icon: 'ingredients' },
+  { name: 'Compras', href: '/compras', icon: 'purchases' },
+  { name: 'Fornecedores', href: '/fornecedores', icon: 'suppliers' },
+  { name: 'Clientes', href: '/clientes', icon: 'suppliers' },
+  { name: 'Produção', href: '/producao', icon: 'production' },
+  { name: 'Caixa', href: '/caixa', icon: 'cashFlow' },
+]
+
+const adminNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
   { name: 'Insumos', href: '/ingredientes', icon: 'ingredients' },
   { name: 'Compras', href: '/compras', icon: 'purchases' },
@@ -15,13 +34,10 @@ const navigation = [
   { name: 'Caixa', href: '/caixa', icon: 'cashFlow' },
   { name: 'Relatórios', href: '/relatorios', icon: 'reports' },
   { name: 'Auditoria', href: '/auditoria', icon: 'reports' },
-]
-
-const adminNavigation = [
   { name: 'Usuários', href: '/usuarios', icon: 'suppliers' },
 ]
 
-const userNavigation = [
+const profileNavigation = [
   { name: 'Perfil', href: '/perfil', icon: 'suppliers' },
 ]
 
@@ -43,14 +59,19 @@ export const Sidebar = () => {
 
   const isActive = (href) => location.pathname === href
 
-  const isAdmin = profile?.role === 'admin'
-  console.log('Sidebar - isAdmin:', isAdmin, 'profile:', profile)
+  // Determinar menu baseado no cargo
+  let menuItems = []
+  const userRole = profile?.role || 'user'
   
-  const menuItems = [
-    ...navigation,
-    ...(isAdmin ? adminNavigation : []),
-    ...userNavigation,
-  ]
+  if (userRole === 'admin') {
+    menuItems = [...adminNavigation, ...profileNavigation]
+  } else if (userRole === 'manager') {
+    menuItems = [...managerNavigation, ...profileNavigation]
+  } else {
+    menuItems = [...userNavigation, ...profileNavigation]
+  }
+  
+  console.log('Sidebar - Role:', userRole, 'Menu items:', menuItems.length)
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-gray-900 border-r border-gray-800 overflow-y-auto">
