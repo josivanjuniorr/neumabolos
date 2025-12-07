@@ -50,6 +50,8 @@ export const Dashboard = () => {
 
   const initialValues = {
     production_date: new Date().toISOString().split('T')[0],
+    order_date: new Date().toISOString().split('T')[0],
+    delivery_date: '',
     product_name: '',
     quantity: '',
     client_id: '',
@@ -76,6 +78,8 @@ export const Dashboard = () => {
   useEffect(() => {
     if (editingOrder) {
       setFieldValue('production_date', editingOrder.production_date)
+      setFieldValue('order_date', editingOrder.order_date || new Date().toISOString().split('T')[0])
+      setFieldValue('delivery_date', editingOrder.delivery_date || '')
       setFieldValue('product_name', editingOrder.product_name)
       setFieldValue('quantity', editingOrder.quantity)
       setFieldValue('client_id', editingOrder.client_id || '')
@@ -85,6 +89,8 @@ export const Dashboard = () => {
       setFieldValue('observations', editingOrder.observations || '')
     } else {
       setFieldValue('production_date', new Date().toISOString().split('T')[0])
+      setFieldValue('order_date', new Date().toISOString().split('T')[0])
+      setFieldValue('delivery_date', '')
       setFieldValue('product_name', '')
       setFieldValue('quantity', '')
       setFieldValue('client_id', '')
@@ -850,8 +856,27 @@ export const Dashboard = () => {
               />
             )}
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Data da Encomenda"
+                name="order_date"
+                type="date"
+                value={values.order_date}
+                onChange={handleChange}
+                required
+              />
+
+              <Input
+                label="Data de Entrega"
+                name="delivery_date"
+                type="date"
+                value={values.delivery_date}
+                onChange={handleChange}
+              />
+            </div>
+
             <Input
-              label="Data da Entrega"
+              label="Data da Produção"
               name="production_date"
               type="date"
               value={values.production_date}
