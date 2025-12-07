@@ -481,10 +481,10 @@ export const Dashboard = () => {
                           <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{order.product_name}</td>
                           <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">{order.clients?.name || '-'}</td>
                           <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">
-                            {order.order_date ? new Date(order.order_date).toLocaleDateString('pt-BR') : '-'}
+                            {order.order_date ? (() => { const [y, m, d] = order.order_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
                           </td>
                           <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">
-                            {order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('pt-BR') : '-'}
+                            {order.delivery_date ? (() => { const [y, m, d] = order.delivery_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
                           </td>
                           <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{order.quantity?.toFixed(0) || '-'}</td>
                           <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
@@ -545,13 +545,13 @@ export const Dashboard = () => {
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Data Encomenda</p>
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {order.order_date ? new Date(order.order_date).toLocaleDateString('pt-BR') : '-'}
+                            {order.order_date ? (() => { const [y, m, d] = order.order_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
                           </p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Data Entrega</p>
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('pt-BR') : '-'}
+                            {order.delivery_date ? (() => { const [y, m, d] = order.delivery_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
                           </p>
                         </div>
                         <div>

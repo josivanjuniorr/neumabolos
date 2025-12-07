@@ -174,16 +174,23 @@ export const Production = () => {
     }
   }
 
+  // Função para formatar data sem conversão de fuso horário
+  const formatLocalDate = (dateString) => {
+    if (!dateString) return '-'
+    const [year, month, day] = dateString.split('T')[0].split('-')
+    return `${day}/${month}/${year}`
+  }
+
   const columns = [
     {
       key: 'order_date',
       label: 'Data Encomenda',
-      render: (value) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
+      render: (value) => formatLocalDate(value),
     },
     {
       key: 'delivery_date',
       label: 'Data Entrega',
-      render: (value) => value ? new Date(value).toLocaleDateString('pt-BR') : '-',
+      render: (value) => formatLocalDate(value),
     },
     { key: 'product_name', label: 'Produto' },
     {
