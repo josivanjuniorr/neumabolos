@@ -466,7 +466,7 @@ export const Dashboard = () => {
                       <tr className="border-b border-gray-200 dark:border-gray-700">
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Produto</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Cliente</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Data Encomenda</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Data Produção</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Data Entrega</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Qtd</th>
                         <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Valor</th>
@@ -481,7 +481,7 @@ export const Dashboard = () => {
                           <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{order.product_name}</td>
                           <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">{order.clients?.name || '-'}</td>
                           <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">
-                            {order.order_date ? (() => { const [y, m, d] = order.order_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
+                            {order.production_date ? (() => { const [y, m, d] = order.production_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
                           </td>
                           <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">
                             {order.delivery_date ? (() => { const [y, m, d] = order.delivery_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
@@ -543,9 +543,9 @@ export const Dashboard = () => {
 
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Data Encomenda</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Data Produção</p>
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {order.order_date ? (() => { const [y, m, d] = order.order_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
+                            {order.production_date ? (() => { const [y, m, d] = order.production_date.split('T')[0].split('-'); return `${d}/${m}/${y}` })() : '-'}
                           </p>
                         </div>
                         <div>
