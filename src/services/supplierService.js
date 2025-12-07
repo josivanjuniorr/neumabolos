@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase'
+import { auditService } from './auditService'
 
 export const supplierService = {
   async getSuppliers(userId) {
@@ -31,10 +32,21 @@ export const supplierService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    await auditService.logAction(userId, 'create', 'suppliers', data.id, null, data)
+    
     return data
   },
 
   async updateSupplier(id, updates) {
+    // Buscar dados antigos
+    const { data: oldData } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { data, error } = await supabase
       .from('suppliers')
       .update(updates)
@@ -43,15 +55,33 @@ export const supplierService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'update', 'suppliers', id, oldData, data)
+    }
+    
     return data
   },
 
   async deleteSupplier(id) {
+    // Buscar dados antes de inativar
+    const { data: oldData } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { error } = await supabase
       .from('suppliers')
       .update({ status: 'inactive' })
       .eq('id', id)
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'delete', 'suppliers', id, oldData, { ...oldData, status: 'inactive' })
+    }
   },
 }

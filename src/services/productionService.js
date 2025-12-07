@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase'
 import { cashFlowService } from './cashFlowService'
+import { auditService } from './auditService'
 
 export const productionService = {
   async getDailyProduction(userId, date) {
@@ -59,6 +60,9 @@ export const productionService = {
       })
     }
 
+    // Registrar auditoria
+    await auditService.logAction(userId, 'create', 'daily_production', data.id, null, data)
+
     return data
   },
 
@@ -109,16 +113,36 @@ export const productionService = {
       })
     }
 
+    // Registrar auditoria
+    await auditService.logAction(currentProduction.user_id, 'update', 'daily_production', id, currentProduction, data)
+
     return data
   },
 
   async deleteProduction(id) {
+    // Buscar dados antes de deletar
+    const { data: oldData } = await supabase
+      .from('daily_production')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { error } = await supabase
       .from('daily_production')
       .delete()
       .eq('id', id)
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'delete', 'daily_production', id, oldData, null)
+    }
+  },
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'delete', 'daily_production', id, oldData, null)
+    }
   },
 
   async getProductionCostByPeriod(userId, startDate, endDate) {

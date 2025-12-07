@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase'
+import { auditService } from './auditService'
 
 export const cashFlowService = {
   async getCashFlow(userId) {
@@ -33,10 +34,21 @@ export const cashFlowService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    await auditService.logAction(userId, 'create', 'cash_flow', data.id, null, data)
+    
     return data
   },
 
   async updateTransaction(id, updates) {
+    // Buscar dados antigos
+    const { data: oldData } = await supabase
+      .from('cash_flow')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { data, error } = await supabase
       .from('cash_flow')
       .update(updates)
@@ -45,16 +57,34 @@ export const cashFlowService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'update', 'cash_flow', id, oldData, data)
+    }
+    
     return data
   },
 
   async deleteTransaction(id) {
+    // Buscar dados antes de deletar
+    const { data: oldData } = await supabase
+      .from('cash_flow')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { error } = await supabase
       .from('cash_flow')
       .delete()
       .eq('id', id)
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'delete', 'cash_flow', id, oldData, null)
+    }
   },
 
   async getDailyFlow(userId, startDate, endDate) {

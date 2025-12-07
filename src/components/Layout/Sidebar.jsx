@@ -12,6 +12,7 @@ const navigation = [
   { name: 'Desperdício', href: '/desperdicio', icon: 'waste' },
   { name: 'Caixa', href: '/caixa', icon: 'cashFlow' },
   { name: 'Relatórios', href: '/relatorios', icon: 'reports' },
+  { name: 'Auditoria', href: '/auditoria', icon: 'reports' },
 ]
 
 export const Sidebar = () => {

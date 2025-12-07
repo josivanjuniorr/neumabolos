@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase'
+import { auditService } from './auditService'
 
 export const wasteService = {
   async getWaste(userId) {
@@ -33,10 +34,21 @@ export const wasteService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    await auditService.logAction(userId, 'create', 'waste_analysis', data.id, null, data)
+    
     return data
   },
 
   async updateWaste(id, updates) {
+    // Buscar dados antigos
+    const { data: oldData } = await supabase
+      .from('waste_analysis')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { data, error } = await supabase
       .from('waste_analysis')
       .update(updates)
@@ -45,16 +57,34 @@ export const wasteService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'update', 'waste_analysis', id, oldData, data)
+    }
+    
     return data
   },
 
   async deleteWaste(id) {
+    // Buscar dados antes de deletar
+    const { data: oldData } = await supabase
+      .from('waste_analysis')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { error } = await supabase
       .from('waste_analysis')
       .delete()
       .eq('id', id)
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'delete', 'waste_analysis', id, oldData, null)
+    }
   },
 
   async getTotalWasteCost(userId, startDate, endDate) {

@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabase'
+import { auditService } from './auditService'
 
 export const clientService = {
   async getClients(userId) {
@@ -31,10 +32,21 @@ export const clientService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    await auditService.logAction(userId, 'create', 'clients', data.id, null, data)
+    
     return data
   },
 
   async updateClient(id, updates) {
+    // Buscar dados antigos
+    const { data: oldData } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { data, error } = await supabase
       .from('clients')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -43,16 +55,34 @@ export const clientService = {
       .single()
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'update', 'clients', id, oldData, data)
+    }
+    
     return data
   },
 
   async deleteClient(id) {
+    // Buscar dados antes de deletar
+    const { data: oldData } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { error } = await supabase
       .from('clients')
       .delete()
       .eq('id', id)
 
     if (error) throw error
+    
+    // Registrar auditoria
+    if (oldData) {
+      await auditService.logAction(oldData.user_id, 'delete', 'clients', id, oldData, null)
+    }
   },
 
   // Estatísticas de clientes

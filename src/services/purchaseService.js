@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase'
 import { cashFlowService } from './cashFlowService'
+import { auditService } from './auditService'
 
 export const purchaseService = {
   async getPurchases(userId) {
@@ -124,10 +125,20 @@ export const purchaseService = {
       // Não falhar a compra se houver erro no fluxo de caixa
     }
 
+    // Registrar auditoria
+    await auditService.logAction(userId, 'create', 'purchases', purchaseData.id, null, { ...purchaseData, items: itemsWithPurchaseId })
+
     return purchaseData
   },
 
   async updatePurchase(id, updates, items) {
+    // Buscar dados antigos
+    const { data: oldData } = await supabase
+      .from('purchases')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { data, error } = await supabase
       .from('purchases')
       .update(updates)
@@ -156,6 +167,16 @@ export const purchaseService = {
         .insert(itemsWithPurchaseId)
 
       if (itemsError) throw itemsError
+      
+      // Registrar auditoria com novos itens
+      if (oldData) {
+        await auditService.logAction(oldData.user_id, 'update', 'purchases', id, oldData, { ...data, items: itemsWithPurchaseId })
+      }
+    } else {
+      // Registrar auditoria sem itens
+      if (oldData) {
+        await auditService.logAction(oldData.user_id, 'update', 'purchases', id, oldData, data)
+      }
     }
 
     return data
@@ -198,6 +219,9 @@ export const purchaseService = {
       } catch (cashFlowError) {
         console.error('Erro ao deletar saída do fluxo de caixa:', cashFlowError)
       }
+      
+      // Registrar auditoria
+      await auditService.logAction(purchase.user_id, 'delete', 'purchases', id, purchase, null)
     }
   },
 

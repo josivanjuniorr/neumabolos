@@ -12,6 +12,7 @@ import {
   Waste,
   CashFlow,
   Reports,
+  Audit,
 } from './pages'
 
 const ProtectedRoute = ({ children }) => {
@@ -113,6 +114,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Reports />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/auditoria"
+        element={
+          <ProtectedRoute>
+            <Audit />
           </ProtectedRoute>
         }
       />
