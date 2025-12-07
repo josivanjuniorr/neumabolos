@@ -98,30 +98,6 @@ CREATE POLICY "Users can delete their own production"
   USING (auth.uid() = user_id);
 
 -- ============================================
--- TABELA: waste (desperdício)
--- ============================================
-DROP POLICY IF EXISTS "Users can view their own waste" ON waste;
-DROP POLICY IF EXISTS "Users can insert their own waste" ON waste;
-DROP POLICY IF EXISTS "Users can update their own waste" ON waste;
-DROP POLICY IF EXISTS "Users can delete their own waste" ON waste;
-
-CREATE POLICY "Users can view their own waste"
-  ON waste FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own waste"
-  ON waste FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own waste"
-  ON waste FOR UPDATE
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own waste"
-  ON waste FOR DELETE
-  USING (auth.uid() = user_id);
-
--- ============================================
 -- TABELA: cash_flow (fluxo de caixa)
 -- ============================================
 DROP POLICY IF EXISTS "Users can view their own cash_flow" ON cash_flow;
@@ -181,5 +157,5 @@ SELECT
   cmd
 FROM pg_policies
 WHERE schemaname = 'public'
-  AND tablename IN ('ingredients', 'suppliers', 'purchases', 'daily_production', 'waste', 'cash_flow', 'clients')
+  AND tablename IN ('ingredients', 'suppliers', 'purchases', 'daily_production', 'cash_flow', 'clients')
 ORDER BY tablename, policyname;
