@@ -51,7 +51,7 @@ export const Header = () => {
               {profile?.role || 'Usuário'}
             </p>
           </div>
-          <div className="w-10 h-10 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+          <div className="w-10 h-10 bg-gray-900 dark:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
             {profile?.full_name?.charAt(0) || 'U'}
           </div>
         </div>
