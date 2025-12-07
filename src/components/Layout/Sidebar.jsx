@@ -17,7 +17,6 @@ const navigation = [
 
 export const Sidebar = () => {
   const location = useLocation()
-  const { signOut } = useAuth()
 
   const isActive = (href) => location.pathname === href
 
@@ -57,17 +56,6 @@ export const Sidebar = () => {
           </Link>
         ))}
       </nav>
-
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
-        <button
-          onClick={signOut}
-          className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg
-            font-medium transition-all duration-200 flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300"
-        >
-          <Icon name="logout" className="w-5 h-5" />
-          <span>Sair</span>
-        </button>
-      </div>
     </aside>
   )
 }

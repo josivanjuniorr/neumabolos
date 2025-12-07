@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { authService } from '../../services/authService'
 
 export const Header = () => {
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [profile, setProfile] = useState(null)
 
@@ -54,6 +54,18 @@ export const Header = () => {
           <div className="w-10 h-10 bg-gray-900 dark:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
             {profile?.full_name?.charAt(0) || 'U'}
           </div>
+          
+          {/* Logout Button */}
+          <button
+            onClick={signOut}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+            aria-label="Sair"
+            title="Sair"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
         </div>
       </div>
     </header>
