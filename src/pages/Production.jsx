@@ -16,6 +16,17 @@ export const Production = () => {
     useState(null)
   const [error, setError] = useState('')
 
+  // Calcular data inicial (uma semana atrás) e final (hoje)
+  const getWeekStart = () => {
+    const date = new Date()
+    date.setDate(date.getDate() - 7)
+    return date.toISOString().split('T')[0]
+  }
+  const getToday = () => new Date().toISOString().split('T')[0]
+  
+  const [startDate, setStartDate] = useState(getWeekStart())
+  const [endDate, setEndDate] = useState(getToday())
+
   const initialValues = {
     production_date: new Date().toISOString().split('T')[0],
     product_name: '',
@@ -36,7 +47,7 @@ export const Production = () => {
     const shouldLoadAll = location.state?.orderId
     loadProduction(shouldLoadAll)
     loadClients()
-  }, [user])
+  }, [user, startDate, endDate])
 
   // Verificar se há um orderId no state da navegação para editar
   useEffect(() => {
@@ -89,8 +100,11 @@ export const Production = () => {
           new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // +1 ano
         )
       } else {
-        const today = new Date().toISOString().split('T')[0]
-        data = await productionService.getDailyProduction(user.id, today)
+        data = await productionService.getProductionByDateRange(
+          user.id,
+          startDate,
+          endDate
+        )
       }
       setProduction(data || [])
     } catch (error) {
@@ -193,13 +207,64 @@ export const Production = () => {
     <MainLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Controle de Produção
           </h1>
           <Button variant="primary" onClick={handleAdd}>
             + Nova Produção
           </Button>
         </div>
+
+        {/* Filtro de Período */}
+        <Card>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Período:</label>
+            <button
+              onClick={() => {
+                const today = getToday()
+                setStartDate(today)
+                setEndDate(today)
+              }}
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+            >
+              Hoje
+            </button>
+            <button
+              onClick={() => {
+                setStartDate(getWeekStart())
+                setEndDate(getToday())
+              }}
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+            >
+              Última Semana
+            </button>
+            <button
+              onClick={() => {
+                const date = new Date()
+                date.setDate(date.getDate() - 30)
+                setStartDate(date.toISOString().split('T')[0])
+                setEndDate(getToday())
+              }}
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+            >
+              Último Mês
+            </button>
+            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
+            />
+            <span className="text-gray-500 dark:text-gray-400 text-sm">até</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
+            />
+          </div>
+        </Card>
 
         <Card>
           <Table
