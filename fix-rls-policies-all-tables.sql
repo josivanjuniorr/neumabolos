@@ -2,6 +2,16 @@
 -- Execute este script no Supabase SQL Editor
 
 -- ============================================
+-- HABILITAR RLS EM TODAS AS TABELAS
+-- ============================================
+ALTER TABLE ingredients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE suppliers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE purchases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE daily_production ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cash_flow ENABLE ROW LEVEL SECURITY;
+ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+
+-- ============================================
 -- TABELA: ingredients (insumos)
 -- ============================================
 DROP POLICY IF EXISTS "Users can view their own ingredients" ON ingredients;
