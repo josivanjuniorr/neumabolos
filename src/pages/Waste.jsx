@@ -11,10 +11,43 @@ export const Waste = () => {
   const [editingWaste, setEditingWaste] = useState(null)
   const [error, setError] = useState('')
 
+  const initialValues = {
+    waste_date: new Date().toISOString().split('T')[0],
+    product_name: '',
+    quantity: '',
+    waste_type: '',
+    estimated_cost: '',
+    responsible: '',
+    observations: '',
+  }
+
+  const { values, handleChange, handleSubmit, isSubmitting, setFieldValue } =
+    useForm(initialValues, onFormSubmit)
+
   useEffect(() => {
     if (!user) return
     loadWaste()
   }, [user])
+
+  useEffect(() => {
+    if (editingWaste) {
+      setFieldValue('waste_date', editingWaste.waste_date || new Date().toISOString().split('T')[0])
+      setFieldValue('product_name', editingWaste.product_name || '')
+      setFieldValue('quantity', editingWaste.quantity || '')
+      setFieldValue('waste_type', editingWaste.waste_type || '')
+      setFieldValue('estimated_cost', editingWaste.estimated_cost || '')
+      setFieldValue('responsible', editingWaste.responsible || '')
+      setFieldValue('observations', editingWaste.observations || '')
+    } else {
+      setFieldValue('waste_date', new Date().toISOString().split('T')[0])
+      setFieldValue('product_name', '')
+      setFieldValue('quantity', '')
+      setFieldValue('waste_type', '')
+      setFieldValue('estimated_cost', '')
+      setFieldValue('responsible', '')
+      setFieldValue('observations', '')
+    }
+  }, [editingWaste, setFieldValue])
 
   const loadWaste = async () => {
     try {
@@ -27,19 +60,6 @@ export const Waste = () => {
       setLoading(false)
     }
   }
-
-  const initialValues = {
-    waste_date: editingWaste?.waste_date || new Date().toISOString().split('T')[0],
-    product_name: editingWaste?.product_name || '',
-    quantity: editingWaste?.quantity || '',
-    waste_type: editingWaste?.waste_type || '',
-    estimated_cost: editingWaste?.estimated_cost || '',
-    responsible: editingWaste?.responsible || '',
-    observations: editingWaste?.observations || '',
-  }
-
-  const { values, handleChange, handleSubmit, isSubmitting } =
-    useForm(initialValues, onFormSubmit)
 
   async function onFormSubmit(formData) {
     try {

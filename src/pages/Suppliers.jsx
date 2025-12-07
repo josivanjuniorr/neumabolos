@@ -11,10 +11,40 @@ export const Suppliers = () => {
   const [editingSupplier, setEditingSupplier] = useState(null)
   const [error, setError] = useState('')
 
+  const initialValues = {
+    name: '',
+    phone: '',
+    cnpj_cpf: '',
+    products_supplied: '',
+    rating: '',
+    observations: '',
+  }
+
+  const { values, handleChange, handleSubmit, isSubmitting, setFieldValue } =
+    useForm(initialValues, onFormSubmit)
+
   useEffect(() => {
     if (!user) return
     loadSuppliers()
   }, [user])
+
+  useEffect(() => {
+    if (editingSupplier) {
+      setFieldValue('name', editingSupplier.name)
+      setFieldValue('phone', editingSupplier.phone || '')
+      setFieldValue('cnpj_cpf', editingSupplier.cnpj_cpf || '')
+      setFieldValue('products_supplied', editingSupplier.products_supplied || '')
+      setFieldValue('rating', editingSupplier.rating || '')
+      setFieldValue('observations', editingSupplier.observations || '')
+    } else {
+      setFieldValue('name', '')
+      setFieldValue('phone', '')
+      setFieldValue('cnpj_cpf', '')
+      setFieldValue('products_supplied', '')
+      setFieldValue('rating', '')
+      setFieldValue('observations', '')
+    }
+  }, [editingSupplier, setFieldValue])
 
   const loadSuppliers = async () => {
     try {
@@ -27,18 +57,6 @@ export const Suppliers = () => {
       setLoading(false)
     }
   }
-
-  const initialValues = {
-    name: editingSupplier?.name || '',
-    phone: editingSupplier?.phone || '',
-    cnpj_cpf: editingSupplier?.cnpj_cpf || '',
-    products_supplied: editingSupplier?.products_supplied || '',
-    rating: editingSupplier?.rating || '',
-    observations: editingSupplier?.observations || '',
-  }
-
-  const { values, handleChange, handleSubmit, isSubmitting } =
-    useForm(initialValues, onFormSubmit)
 
   async function onFormSubmit(formData) {
     try {

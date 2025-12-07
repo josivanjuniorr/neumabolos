@@ -16,15 +16,15 @@ export const IngredientForm = ({
   const [error, setError] = useState('')
 
   const initialValues = {
-    name: ingredient?.name || '',
-    category_id: ingredient?.category_id || '',
-    unit_measure: ingredient?.unit_measure || '',
-    unit_cost: ingredient?.unit_cost || '',
-    supplier_id: ingredient?.supplier_id || '',
-    observations: ingredient?.observations || '',
+    name: '',
+    category_id: '',
+    unit_measure: '',
+    unit_cost: '',
+    supplier_id: '',
+    observations: '',
   }
 
-  const { values, handleChange, handleSubmit, isSubmitting } =
+  const { values, handleChange, handleSubmit, isSubmitting, setFieldValue } =
     useForm(initialValues, onFormSubmit)
 
   useEffect(() => {
@@ -32,6 +32,24 @@ export const IngredientForm = ({
     loadSuppliers()
     loadCategories()
   }, [user])
+
+  useEffect(() => {
+    if (ingredient) {
+      setFieldValue('name', ingredient.name || '')
+      setFieldValue('category_id', ingredient.category_id || '')
+      setFieldValue('unit_measure', ingredient.unit_measure || '')
+      setFieldValue('unit_cost', ingredient.unit_cost || '')
+      setFieldValue('supplier_id', ingredient.supplier_id || '')
+      setFieldValue('observations', ingredient.observations || '')
+    } else {
+      setFieldValue('name', '')
+      setFieldValue('category_id', '')
+      setFieldValue('unit_measure', '')
+      setFieldValue('unit_cost', '')
+      setFieldValue('supplier_id', '')
+      setFieldValue('observations', '')
+    }
+  }, [ingredient, setFieldValue])
 
   const loadSuppliers = async () => {
     try {

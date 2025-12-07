@@ -22,13 +22,13 @@ export const PurchaseForm = ({
   const [error, setError] = useState('')
 
   const initialValues = {
-    purchase_date: purchase?.purchase_date || '',
-    supplier_id: purchase?.supplier_id || '',
-    category_id: purchase?.category_id || '',
-    payment_form: purchase?.payment_form || '',
+    purchase_date: '',
+    supplier_id: '',
+    category_id: '',
+    payment_form: '',
   }
 
-  const { values, handleChange, handleSubmit, isSubmitting } =
+  const { values, handleChange, handleSubmit, isSubmitting, setFieldValue } =
     useForm(initialValues, onFormSubmit)
 
   useEffect(() => {
@@ -38,10 +38,27 @@ export const PurchaseForm = ({
     loadCategories()
   }, [user])
 
+  // Carregar dados da compra quando estiver editando
+  useEffect(() => {
+    if (purchase) {
+      setFieldValue('purchase_date', purchase.purchase_date || '')
+      setFieldValue('supplier_id', purchase.supplier_id || '')
+      setFieldValue('category_id', purchase.category_id || '')
+      setFieldValue('payment_form', purchase.payment_form || '')
+    } else {
+      setFieldValue('purchase_date', '')
+      setFieldValue('supplier_id', '')
+      setFieldValue('category_id', '')
+      setFieldValue('payment_form', '')
+    }
+  }, [purchase, setFieldValue])
+
   // Sincronizar itens quando a compra mudar
   useEffect(() => {
     if (purchase?.purchase_items) {
       setItems(purchase.purchase_items)
+    } else {
+      setItems([])
     }
   }, [purchase?.id])
 

@@ -12,10 +12,43 @@ export const CashFlow = () => {
     useState(null)
   const [error, setError] = useState('')
 
+  const initialValues = {
+    transaction_date: new Date().toISOString().split('T')[0],
+    transaction_type: '',
+    description: '',
+    amount: '',
+    payment_form: '',
+    responsible: '',
+    observations: '',
+  }
+
+  const { values, handleChange, handleSubmit, isSubmitting, setFieldValue } =
+    useForm(initialValues, onFormSubmit)
+
   useEffect(() => {
     if (!user) return
     loadCashFlow()
   }, [user])
+
+  useEffect(() => {
+    if (editingTransaction) {
+      setFieldValue('transaction_date', editingTransaction.transaction_date || new Date().toISOString().split('T')[0])
+      setFieldValue('transaction_type', editingTransaction.transaction_type || '')
+      setFieldValue('description', editingTransaction.description || '')
+      setFieldValue('amount', editingTransaction.amount || '')
+      setFieldValue('payment_form', editingTransaction.payment_form || '')
+      setFieldValue('responsible', editingTransaction.responsible || '')
+      setFieldValue('observations', editingTransaction.observations || '')
+    } else {
+      setFieldValue('transaction_date', new Date().toISOString().split('T')[0])
+      setFieldValue('transaction_type', '')
+      setFieldValue('description', '')
+      setFieldValue('amount', '')
+      setFieldValue('payment_form', '')
+      setFieldValue('responsible', '')
+      setFieldValue('observations', '')
+    }
+  }, [editingTransaction, setFieldValue])
 
   const loadCashFlow = async () => {
     try {
@@ -28,19 +61,6 @@ export const CashFlow = () => {
       setLoading(false)
     }
   }
-
-  const initialValues = {
-    transaction_date: editingTransaction?.transaction_date || new Date().toISOString().split('T')[0],
-    transaction_type: editingTransaction?.transaction_type || '',
-    description: editingTransaction?.description || '',
-    amount: editingTransaction?.amount || '',
-    payment_form: editingTransaction?.payment_form || '',
-    responsible: editingTransaction?.responsible || '',
-    observations: editingTransaction?.observations || '',
-  }
-
-  const { values, handleChange, handleSubmit, isSubmitting } =
-    useForm(initialValues, onFormSubmit)
 
   async function onFormSubmit(formData) {
     try {
