@@ -44,7 +44,8 @@ export const Dashboard = () => {
   
   // Filtro de encomendas - padrão hoje
   const today = new Date().toISOString().split('T')[0]
-  const [ordersDate, setOrdersDate] = useState(today)
+  const [ordersStartDate, setOrdersStartDate] = useState(today)
+  const [ordersEndDate, setOrdersEndDate] = useState(today)
   const [orders, setOrders] = useState([])
 
   const initialValues = {
@@ -70,7 +71,7 @@ export const Dashboard = () => {
     if (!user) return
     loadOrders()
     loadClients()
-  }, [user, ordersDate])
+  }, [user, ordersStartDate, ordersEndDate])
 
   useEffect(() => {
     if (editingOrder) {
@@ -96,7 +97,11 @@ export const Dashboard = () => {
 
   const loadOrders = async () => {
     try {
-      const data = await productionService.getDailyProduction(user.id, ordersDate)
+      const data = await productionService.getProductionByDateRange(
+        user.id,
+        ordersStartDate,
+        ordersEndDate
+      )
       setOrders(data || [])
     } catch (error) {
       console.error('Erro ao carregar encomendas:', error)
@@ -355,21 +360,19 @@ export const Dashboard = () => {
         </div>
 
         {/* Encomendas do Dia - TOPO */}
-        <Card title="🎂 Encomendas do Dia">
+        <Card title="🎂 Encomendas">
           <div className="space-y-4">
             {/* Filtro de Data das Encomendas */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-200">
-              <div className="flex flex-wrap items-center gap-3">
-                <label className="text-sm font-medium text-gray-700">Data:</label>
-                <input
-                  type="date"
-                  value={ordersDate}
-                  onChange={(e) => setOrdersDate(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
-                />
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Período:</label>
                 <button
-                  onClick={() => setOrdersDate(new Date().toISOString().split('T')[0])}
-                  className="px-4 py-2 bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-sm font-medium rounded-lg transition-colors"
+                  onClick={() => {
+                    const today = new Date().toISOString().split('T')[0]
+                    setOrdersStartDate(today)
+                    setOrdersEndDate(today)
+                  }}
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
                 >
                   Hoje
                 </button>
@@ -377,12 +380,40 @@ export const Dashboard = () => {
                   onClick={() => {
                     const yesterday = new Date()
                     yesterday.setDate(yesterday.getDate() - 1)
-                    setOrdersDate(yesterday.toISOString().split('T')[0])
+                    const yesterdayStr = yesterday.toISOString().split('T')[0]
+                    setOrdersStartDate(yesterdayStr)
+                    setOrdersEndDate(yesterdayStr)
                   }}
-                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition-colors"
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
                 >
                   Ontem
                 </button>
+                <button
+                  onClick={() => {
+                    const now = new Date()
+                    const weekStart = new Date(now)
+                    weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+                    setOrdersStartDate(weekStart.toISOString().split('T')[0])
+                    setOrdersEndDate(now.toISOString().split('T')[0])
+                  }}
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+                >
+                  Esta Semana
+                </button>
+                <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                <input
+                  type="date"
+                  value={ordersStartDate}
+                  onChange={(e) => setOrdersStartDate(e.target.value)}
+                  className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
+                />
+                <span className="text-gray-500 dark:text-gray-400 text-sm">até</span>
+                <input
+                  type="date"
+                  value={ordersEndDate}
+                  onChange={(e) => setOrdersEndDate(e.target.value)}
+                  className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
+                />
               </div>
               <Button
                 onClick={() => {
