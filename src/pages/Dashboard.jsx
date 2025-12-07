@@ -326,43 +326,6 @@ export const Dashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Dashboard
           </h1>
-          
-          {/* Filtro de Data com botões rápidos */}
-          <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-gray-800 px-4 py-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Período:</label>
-            <button
-              onClick={() => setQuickPeriod('today')}
-              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
-            >
-              Hoje
-            </button>
-            <button
-              onClick={() => setQuickPeriod('week')}
-              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
-            >
-              Semana
-            </button>
-            <button
-              onClick={() => setQuickPeriod('month')}
-              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
-            >
-              Mês
-            </button>
-            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
-            />
-            <span className="text-gray-500 dark:text-gray-400 text-sm">até</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
-            />
-          </div>
         </div>
 
         {/* Encomendas do Dia - TOPO */}
@@ -593,6 +556,43 @@ export const Dashboard = () => {
             )}
           </div>
         </Card>
+
+        {/* Filtro de Data Geral com botões rápidos */}
+        <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-gray-800 px-4 py-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Período Geral:</label>
+          <button
+            onClick={() => setQuickPeriod('today')}
+            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+          >
+            Hoje
+          </button>
+          <button
+            onClick={() => setQuickPeriod('week')}
+            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+          >
+            Semana
+          </button>
+          <button
+            onClick={() => setQuickPeriod('month')}
+            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+          >
+            Mês
+          </button>
+          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
+          />
+          <span className="text-gray-500 dark:text-gray-400 text-sm">até</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
+          />
+        </div>
 
         {/* Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
