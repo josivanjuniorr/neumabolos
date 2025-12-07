@@ -18,39 +18,19 @@ DROP POLICY IF EXISTS "Users can update own profile" ON user_profiles;
 DROP POLICY IF EXISTS "Admins can update any profile" ON user_profiles;
 DROP POLICY IF EXISTS "System can insert profiles" ON user_profiles;
 
--- Política: Usuários podem ver apenas seu próprio perfil
-CREATE POLICY "Users can view own profile"
+-- Política: Todos podem ver todos os perfis (simplificado)
+-- Em produção, você pode querer restringir isso
+CREATE POLICY "Users can view all profiles"
   ON user_profiles
   FOR SELECT
-  USING (auth.uid() = id);
-
--- Política: Admins podem ver todos os perfis
-CREATE POLICY "Admins can view all profiles"
-  ON user_profiles
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM user_profiles
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (true);
 
 -- Política: Usuários podem atualizar apenas seu próprio perfil
 CREATE POLICY "Users can update own profile"
   ON user_profiles
   FOR UPDATE
-  USING (auth.uid() = id);
-
--- Política: Admins podem atualizar qualquer perfil
-CREATE POLICY "Admins can update any profile"
-  ON user_profiles
-  FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM user_profiles
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
 -- Política: Sistema pode inserir perfis (durante signup)
 CREATE POLICY "System can insert profiles"
