@@ -139,11 +139,6 @@ export const productionService = {
       await auditService.logAction(oldData.user_id, 'delete', 'daily_production', id, oldData, null)
     }
   },
-    // Registrar auditoria
-    if (oldData) {
-      await auditService.logAction(oldData.user_id, 'delete', 'daily_production', id, oldData, null)
-    }
-  },
 
   async getProductionCostByPeriod(userId, startDate, endDate) {
     const { data, error } = await supabase
