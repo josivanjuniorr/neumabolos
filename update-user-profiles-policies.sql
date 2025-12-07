@@ -1,7 +1,7 @@
 -- Opção alternativa: Criar função para verificar admin (evita recursão)
 
 -- 1. Criar função para verificar se usuário é admin
-CREATE OR REPLACE FUNCTION auth.is_admin()
+CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN AS $$
   SELECT COALESCE(
     (SELECT role = 'admin' FROM public.user_profiles WHERE id = auth.uid()),
@@ -21,14 +21,14 @@ DROP POLICY IF EXISTS "System can insert profiles" ON user_profiles;
 CREATE POLICY "Users can view profiles"
   ON user_profiles
   FOR SELECT
-  USING (auth.uid() = id OR auth.is_admin());
+  USING (auth.uid() = id OR public.is_admin());
 
 -- 4. Política: Usuários podem atualizar seu próprio perfil OU admin pode atualizar qualquer um
 CREATE POLICY "Users can update profiles"
   ON user_profiles
   FOR UPDATE
-  USING (auth.uid() = id OR auth.is_admin())
-  WITH CHECK (auth.uid() = id OR auth.is_admin());
+  USING (auth.uid() = id OR public.is_admin())
+  WITH CHECK (auth.uid() = id OR public.is_admin());
 
 -- 5. Política: Sistema pode inserir perfis (durante signup)
 CREATE POLICY "System can insert profiles"
