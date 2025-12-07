@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './hooks'
+import { AuthProvider, ThemeProvider, useAuth } from './hooks'
 import {
   Login,
   Signup,
@@ -136,9 +136,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <Router basename="/neumabolos">
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   )
 }

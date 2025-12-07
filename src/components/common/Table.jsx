@@ -16,27 +16,27 @@ export const Table = ({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
-        <p className="text-gray-500">Nenhum registro encontrado</p>
+      <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <p className="text-gray-500 dark:text-gray-400">Nenhum registro encontrado</p>
       </div>
     )
   }
 
   return (
     <div className="overflow-x-auto rounded-lg shadow">
-      <table className="min-w-full bg-white">
+      <table className="min-w-full bg-white dark:bg-gray-800">
         <thead>
-          <tr className="bg-gray-100 border-b border-gray-200">
+          <tr className="bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
             {columns.map((column) => (
               <th
                 key={column.key}
-                className="px-6 py-3 text-left text-sm font-semibold text-gray-700"
+                className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200"
               >
                 {column.label}
               </th>
             ))}
             {actions && (
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
                 Ações
               </th>
             )}
@@ -46,12 +46,12 @@ export const Table = ({
           {data.map((row, idx) => (
             <tr
               key={row.id || idx}
-              className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+              className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {columns.map((column) => (
                 <td
                   key={`${row.id}-${column.key}`}
-                  className="px-6 py-4 text-sm text-gray-700"
+                  className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300"
                 >
                   {column.render
                     ? column.render(row[column.key], row)

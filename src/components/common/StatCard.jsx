@@ -30,15 +30,15 @@ export const StatCard = ({
     <div
       onClick={onClick}
       className={`
-        bg-white rounded-xl shadow-sm p-6 border border-gray-100
+        bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700
         hover:shadow-md transition-all duration-200
         ${onClick ? 'cursor-pointer' : ''}
       `}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-gray-600 text-sm font-medium mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-2">
+          <p className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
             {value}
           </p>
           {trend && (

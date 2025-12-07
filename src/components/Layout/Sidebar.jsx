@@ -22,8 +22,8 @@ export const Sidebar = () => {
   const isActive = (href) => location.pathname === href
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white shadow-2xl overflow-y-auto">
-      <div className="p-6 border-b border-gray-700 bg-gray-900/50">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900 text-white shadow-2xl overflow-y-auto">
+      <div className="p-6 border-b border-gray-700 dark:border-gray-800 bg-gray-900/50 dark:bg-gray-950/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
