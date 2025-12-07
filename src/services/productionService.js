@@ -57,6 +57,7 @@ export const productionService = {
         description: `Venda - ${production.product_name}${clientName ? ` - ${clientName}` : ''}`,
         amount: production.valor,
         payment_form: 'Dinheiro',
+        production_id: data.id, // Vincular à produção
       })
     }
 
@@ -110,7 +111,26 @@ export const productionService = {
         description: `Venda - ${data.product_name}${clientName ? ` - ${clientName}` : ''}`,
         amount: data.valor,
         payment_form: 'Dinheiro',
+        production_id: id, // Vincular à produção
       })
+    }
+
+    // Se status mudou de 'entregue' para 'encomenda', excluir movimentação do caixa
+    if (
+      currentProduction.status === 'entregue' &&
+      updates.status === 'encomenda'
+    ) {
+      // Buscar e excluir movimentação vinculada a esta produção
+      const { data: cashFlowEntries, error: searchError } = await supabase
+        .from('cash_flow')
+        .select('id')
+        .eq('production_id', id)
+
+      if (!searchError && cashFlowEntries && cashFlowEntries.length > 0) {
+        for (const entry of cashFlowEntries) {
+          await cashFlowService.deleteTransaction(entry.id)
+        }
+      }
     }
 
     // Registrar auditoria
@@ -126,6 +146,20 @@ export const productionService = {
       .select('*')
       .eq('id', id)
       .single()
+
+    // Se a produção estava entregue, excluir movimentação do caixa vinculada
+    if (oldData && oldData.status === 'entregue') {
+      const { data: cashFlowEntries, error: searchError } = await supabase
+        .from('cash_flow')
+        .select('id')
+        .eq('production_id', id)
+
+      if (!searchError && cashFlowEntries && cashFlowEntries.length > 0) {
+        for (const entry of cashFlowEntries) {
+          await cashFlowService.deleteTransaction(entry.id)
+        }
+      }
+    }
 
     const { error } = await supabase
       .from('daily_production')
