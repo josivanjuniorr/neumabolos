@@ -312,44 +312,44 @@ export const Dashboard = () => {
     <MainLayout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Dashboard
           </h1>
           
           {/* Filtro de Data com botões rápidos */}
-          <div className="flex flex-wrap items-center gap-2 bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100">
-            <label className="text-sm font-medium text-gray-700">Período:</label>
+          <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-gray-800 px-4 py-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Período:</label>
             <button
               onClick={() => setQuickPeriod('today')}
-              className="px-3 py-1.5 bg-gray-100 hover:bg-blue-600 hover:text-white text-gray-700 text-xs font-medium rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
             >
               Hoje
             </button>
             <button
               onClick={() => setQuickPeriod('week')}
-              className="px-3 py-1.5 bg-gray-100 hover:bg-blue-600 hover:text-white text-gray-700 text-xs font-medium rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
             >
               Semana
             </button>
             <button
               onClick={() => setQuickPeriod('month')}
-              className="px-3 py-1.5 bg-gray-100 hover:bg-blue-600 hover:text-white text-gray-700 text-xs font-medium rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
             >
               Mês
             </button>
-            <div className="h-6 w-px bg-gray-300"></div>
+            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
             />
-            <span className="text-gray-500 text-sm">até</span>
+            <span className="text-gray-500 dark:text-gray-400 text-sm">até</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
             />
           </div>
         </div>
@@ -365,11 +365,11 @@ export const Dashboard = () => {
                   type="date"
                   value={ordersDate}
                   onChange={(e) => setOrdersDate(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100"
                 />
                 <button
                   onClick={() => setOrdersDate(new Date().toISOString().split('T')[0])}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                  className="px-4 py-2 bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-sm font-medium rounded-lg transition-colors"
                 >
                   Hoje
                 </button>
@@ -379,7 +379,7 @@ export const Dashboard = () => {
                     yesterday.setDate(yesterday.getDate() - 1)
                     setOrdersDate(yesterday.toISOString().split('T')[0])
                   }}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition-colors"
                 >
                   Ontem
                 </button>
@@ -397,25 +397,25 @@ export const Dashboard = () => {
 
             {/* Cards Resumo de Encomendas */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
-                <p className="text-sm text-blue-600 font-medium mb-1">Total de Encomendas</p>
-                <p className="text-3xl font-bold text-blue-700">{orders.length}</p>
+              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Total de Encomendas</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">{orders.length}</p>
               </div>
-              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200">
-                <p className="text-sm text-yellow-600 font-medium mb-1">Pendentes</p>
-                <p className="text-3xl font-bold text-yellow-700">
+              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Pendentes</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
                   {orders.filter(o => o.status === 'encomenda').length}
                 </p>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
-                <p className="text-sm text-green-600 font-medium mb-1">Entregues</p>
-                <p className="text-3xl font-bold text-green-700">
+              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Entregues</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
                   {orders.filter(o => o.status === 'entregue').length}
                 </p>
               </div>
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
-                <p className="text-sm text-purple-600 font-medium mb-1">Valor Total</p>
-                <p className="text-2xl font-bold text-purple-700">
+              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Valor Total</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   R$ {orders.reduce((sum, o) => sum + (o.valor || 0), 0).toFixed(2)}
                 </p>
               </div>
@@ -423,7 +423,7 @@ export const Dashboard = () => {
 
             {/* Lista de Encomendas */}
             {orders.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">
+              <p className="text-center text-gray-500 dark:text-gray-400 py-8">
                 Nenhuma encomenda para esta data
               </p>
             ) : (
@@ -432,33 +432,33 @@ export const Dashboard = () => {
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Produto</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Cliente</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Qtd</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Valor</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Horário</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Ações</th>
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Produto</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Cliente</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Qtd</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Valor</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Horário</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
                       {orders.map((order) => (
-                        <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 text-sm font-medium text-gray-900">{order.product_name}</td>
-                          <td className="py-3 px-4 text-sm text-gray-700">{order.clients?.name || '-'}</td>
-                          <td className="py-3 px-4 text-sm text-gray-900">{order.quantity?.toFixed(0) || '-'}</td>
-                          <td className="py-3 px-4 text-sm font-semibold text-gray-900">
+                        <tr key={order.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                          <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{order.product_name}</td>
+                          <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">{order.clients?.name || '-'}</td>
+                          <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{order.quantity?.toFixed(0) || '-'}</td>
+                          <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
                             {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-700">
+                          <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">
                             {order.delivery_time || '-'}
                           </td>
                           <td className="py-3 px-4 text-sm">
                             <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${
                               order.status === 'entregue' 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-yellow-100 text-yellow-800'
+                                ? 'bg-gray-800 dark:bg-gray-700 text-white' 
+                                : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-300'
                             }`}>
                               {order.status === 'entregue' ? '✓ Entregue' : '⏱ Pendente'}
                             </span>
@@ -466,7 +466,7 @@ export const Dashboard = () => {
                           <td className="py-3 px-4 text-sm">
                             <button
                               onClick={() => handleEdit(order)}
-                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors"
+                              className="px-3 py-1.5 bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-xs font-medium rounded-lg transition-colors"
                             >
                               Ver Detalhes
                             </button>
@@ -482,21 +482,21 @@ export const Dashboard = () => {
                   {orders.map((order) => (
                     <div
                       key={order.id}
-                      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <h3 className="font-bold text-gray-900 text-base mb-1">
+                          <h3 className="font-bold text-gray-900 dark:text-white text-base mb-1">
                             {order.product_name}
                           </h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             {order.clients?.name || 'Sem cliente'}
                           </p>
                         </div>
                         <span className={`inline-flex px-2.5 py-1 text-xs font-bold rounded-full whitespace-nowrap ml-2 ${
                           order.status === 'entregue' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
+                            ? 'bg-gray-800 dark:bg-gray-700 text-white' 
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-300'
                         }`}>
                           {order.status === 'entregue' ? '✓ Entregue' : '⏱ Pendente'}
                         </span>
@@ -504,20 +504,20 @@ export const Dashboard = () => {
 
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
-                          <p className="text-xs text-gray-500 mb-0.5">Quantidade</p>
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Quantidade</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
                             {order.quantity?.toFixed(0) || '-'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-0.5">Valor</p>
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Valor</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
                             {order.valor ? `R$ ${order.valor.toFixed(2)}` : '-'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-0.5">Horário</p>
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Horário</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
                             {order.delivery_time || '-'}
                           </p>
                         </div>
@@ -525,7 +525,7 @@ export const Dashboard = () => {
 
                       <button
                         onClick={() => handleEdit(order)}
-                        className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        className="w-full px-4 py-2.5 bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-sm font-medium rounded-lg transition-colors"
                       >
                         Ver Detalhes
                       </button>
@@ -575,25 +575,25 @@ export const Dashboard = () => {
         <div className="grid grid-cols-1 gap-4">
           <Card title="Resumo do Mês">
             <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Faturamento</span>
-                <span className="text-lg font-bold text-green-600">
+              <div className="flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Faturamento</span>
+                <span className="text-lg font-bold text-gray-900 dark:text-white">
                   R$ {data.totalRevenue.toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Despesas</span>
-                <span className="text-lg font-bold text-red-600">
+              <div className="flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Despesas</span>
+                <span className="text-lg font-bold text-gray-900 dark:text-white">
                   R$ {data.totalExpenses.toFixed(2)}
                 </span>
               </div>
-              <div className="h-px bg-gray-300"></div>
-              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Lucro/Prejuízo</span>
+              <div className="h-px bg-gray-300 dark:bg-gray-700"></div>
+              <div className="flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Lucro/Prejuízo</span>
                 <span className={`text-lg font-bold ${
                   data.totalRevenue - data.totalExpenses >= 0 
-                    ? 'text-blue-600' 
-                    : 'text-red-600'
+                    ? 'text-gray-900 dark:text-white' 
+                    : 'text-gray-700 dark:text-gray-400'
                 }`}>
                   R$ {(data.totalRevenue - data.totalExpenses).toFixed(2)}
                 </span>
