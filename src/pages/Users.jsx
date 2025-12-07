@@ -10,7 +10,7 @@ const ROLES = {
 }
 
 export const Users = () => {
-  const { user } = useAuth()
+  const { user, refreshProfile } = useAuth()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -54,6 +54,7 @@ export const Users = () => {
 
       setSuccess('Cargo atualizado com sucesso!')
       await loadUsers()
+      refreshProfile() // Atualiza perfil em todo sistema se for o próprio usuário
       setShowModal(false)
       setEditingUser(null)
     } catch (err) {

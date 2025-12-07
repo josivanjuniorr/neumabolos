@@ -9,7 +9,7 @@ const ROLES = {
 }
 
 export const Header = () => {
-  const { user, signOut } = useAuth()
+  const { user, signOut, profileVersion } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [profile, setProfile] = useState(null)
 
@@ -17,7 +17,7 @@ export const Header = () => {
     if (user) {
       authService.getUserProfile(user.id).then(setProfile)
     }
-  }, [user])
+  }, [user, profileVersion])
 
   return (
     <header className="fixed top-0 right-0 left-64 bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 h-16 flex items-center px-6 z-40">

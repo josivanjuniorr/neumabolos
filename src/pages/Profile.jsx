@@ -10,7 +10,7 @@ const ROLES = {
 }
 
 export const Profile = () => {
-  const { user } = useAuth()
+  const { user, refreshProfile } = useAuth()
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -68,6 +68,7 @@ export const Profile = () => {
 
       setSuccess('Perfil atualizado com sucesso!')
       await loadProfile()
+      refreshProfile() // Força reload em todo o sistema
     } catch (err) {
       setError(err.message || 'Erro ao atualizar perfil')
     } finally {

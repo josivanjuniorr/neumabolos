@@ -27,14 +27,14 @@ const userNavigation = [
 
 export const Sidebar = () => {
   const location = useLocation()
-  const { user } = useAuth()
+  const { user, profileVersion } = useAuth()
   const [profile, setProfile] = useState(null)
 
   useEffect(() => {
     if (user) {
       authService.getUserProfile(user.id).then(setProfile)
     }
-  }, [user])
+  }, [user, profileVersion])
 
   const isActive = (href) => location.pathname === href
 
