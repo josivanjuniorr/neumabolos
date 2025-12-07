@@ -11,6 +11,13 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 -- Habilitar RLS
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
+-- Remover políticas antigas se existirem
+DROP POLICY IF EXISTS "Users can view own profile" ON user_profiles;
+DROP POLICY IF EXISTS "Admins can view all profiles" ON user_profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON user_profiles;
+DROP POLICY IF EXISTS "Admins can update any profile" ON user_profiles;
+DROP POLICY IF EXISTS "System can insert profiles" ON user_profiles;
+
 -- Política: Usuários podem ver apenas seu próprio perfil
 CREATE POLICY "Users can view own profile"
   ON user_profiles
