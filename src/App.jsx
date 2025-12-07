@@ -13,6 +13,7 @@ import {
   CashFlow,
   Reports,
   Audit,
+  Profile,
 } from './pages'
 
 const ProtectedRoute = ({ children }) => {
@@ -123,6 +124,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Audit />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
