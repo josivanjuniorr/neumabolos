@@ -34,6 +34,7 @@ export const Dashboard = () => {
   const [clients, setClients] = useState([])
   const [error, setError] = useState('')
   const [clientSearch, setClientSearch] = useState('')
+  const [showClientDropdown, setShowClientDropdown] = useState(false)
   
   // Estado para filtros de data
   const now = new Date()
@@ -88,6 +89,14 @@ export const Dashboard = () => {
       setFieldValue('status', editingOrder.status || 'encomenda')
       setFieldValue('delivery_time', editingOrder.delivery_time || '')
       setFieldValue('observations', editingOrder.observations || '')
+      
+      // Preencher o nome do cliente no campo de busca
+      if (editingOrder.clients) {
+        setClientSearch(editingOrder.clients.name)
+      } else if (editingOrder.client_id) {
+        const client = clients.find(c => c.id === editingOrder.client_id)
+        if (client) setClientSearch(client.name)
+      }
     } else {
       setFieldValue('production_date', new Date().toISOString().split('T')[0])
       setFieldValue('order_date', new Date().toISOString().split('T')[0])
@@ -99,8 +108,19 @@ export const Dashboard = () => {
       setFieldValue('status', 'encomenda')
       setFieldValue('delivery_time', '')
       setFieldValue('observations', '')
+      setClientSearch('')
     }
-  }, [editingOrder, setFieldValue])
+  }, [editingOrder, setFieldValue, clients])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showClientDropdown && !event.target.closest('.client-autocomplete')) {
+        setShowClientDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showClientDropdown])
 
   const loadOrders = async () => {
     try {
@@ -903,33 +923,50 @@ export const Dashboard = () => {
               required
             />
 
-            <div>
+            <div className="relative client-autocomplete">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Cliente
               </label>
-              <Input
-                name="client_search"
+              <input
+                type="text"
                 value={clientSearch}
-                onChange={(e) => setClientSearch(e.target.value)}
-                placeholder="Buscar cliente..."
-                className="mb-2"
+                onChange={(e) => {
+                  setClientSearch(e.target.value)
+                  setShowClientDropdown(true)
+                }}
+                onFocus={() => setShowClientDropdown(true)}
+                placeholder="Digite para buscar cliente..."
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               />
-              <Select
-                name="client_id"
-                value={values.client_id}
-                onChange={handleChange}
-                options={[
-                  { value: '', label: 'Selecione um cliente' },
-                  ...clients
+              {showClientDropdown && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {clients
                     .filter(client => 
                       client.name.toLowerCase().includes(clientSearch.toLowerCase())
                     )
-                    .map(client => ({
-                      value: client.id,
-                      label: client.name
-                    }))
-                ]}
-              />
+                    .map(client => (
+                      <button
+                        key={client.id}
+                        type="button"
+                        onClick={() => {
+                          setFieldValue('client_id', client.id)
+                          setClientSearch(client.name)
+                          setShowClientDropdown(false)
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        {client.name}
+                      </button>
+                    ))}
+                  {clients.filter(client => 
+                    client.name.toLowerCase().includes(clientSearch.toLowerCase())
+                  ).length === 0 && (
+                    <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                      Nenhum cliente encontrado
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <Input
