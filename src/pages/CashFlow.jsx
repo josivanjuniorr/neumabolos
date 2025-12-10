@@ -420,128 +420,108 @@ export const CashFlow = () => {
 
         {/* Gráfico de Fluxo */}
         {chartDataArray.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Gráfico de Linha - Entradas vs Saídas */}
-            <Card title="Entradas vs Saídas">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartDataArray}>
-                  <CartesianGrid strokeDasharray="3 3" />
+          <div className="grid grid-cols-1 gap-6">
+            {/* Gráfico Principal - Entradas vs Saídas com Saldo */}
+            <Card title="Fluxo de Caixa">
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={chartDataArray}>
+                  <defs>
+                    <linearGradient id="colorEntrada" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0.6}/>
+                    </linearGradient>
+                    <linearGradient id="colorSaida" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#EF4444" stopOpacity={0.6}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis 
                     dataKey="date" 
                     tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                    stroke="#6b7280"
                   />
-                  <YAxis />
+                  <YAxis stroke="#6b7280" />
                   <Tooltip 
                     labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
                     formatter={(value) => `R$ ${value.toFixed(2)}`}
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      padding: '12px'
+                    }}
                   />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="entrada"
-                    stroke="#10B981"
+                  <Legend 
+                    wrapperStyle={{ paddingTop: '20px' }}
+                    iconType="rect"
+                  />
+                  <Bar 
+                    dataKey="entrada" 
+                    fill="url(#colorEntrada)"
                     name="Entradas"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
+                    radius={[8, 8, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="saída" 
+                    fill="url(#colorSaida)"
+                    name="Saídas"
+                    radius={[8, 8, 0, 0]}
                   />
                   <Line
-                    type="monotone"
-                    dataKey="saída"
-                    stroke="#EF4444"
-                    name="Saídas"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Card>
-
-            {/* Gráfico de Área - Saldo Acumulado */}
-            <Card title="Saldo Acumulado">
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={chartDataArray}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
-                    formatter={(value) => `R$ ${value.toFixed(2)}`}
-                  />
-                  <Legend />
-                  <Area
                     type="monotone"
                     dataKey="saldoAcumulado"
                     stroke="#3B82F6"
-                    fill="#3B82F6"
-                    fillOpacity={0.3}
+                    strokeWidth={3}
                     name="Saldo Acumulado"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </Card>
-          </div>
-        )}
-
-        {/* Gráficos de Barras e Pizza */}
-        {chartDataArray.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Gráfico de Barras - Saldo Diário */}
-            <Card title="Saldo Diário (Entrada - Saída)">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartDataArray}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
-                    formatter={(value) => `R$ ${value.toFixed(2)}`}
-                  />
-                  <Legend />
-                  <Bar 
-                    dataKey="saldo" 
-                    fill="#8B5CF6" 
-                    name="Saldo do Dia"
-                    radius={[8, 8, 0, 0]}
+                    dot={{ fill: '#3B82F6', r: 4 }}
+                    activeDot={{ r: 6 }}
                   />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
 
             {/* Gráfico de Pizza - Formas de Pagamento */}
-            <Card title="Distribuição por Forma de Pagamento">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={paymentChartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {paymentChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value, name, props) => [
-                      `R$ ${value.toFixed(2)} (${props.payload.count} transações)`,
-                      name
-                    ]}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </Card>
+            {paymentChartData.length > 0 && (
+              <Card title="Distribuição por Forma de Pagamento">
+                <ResponsiveContainer width="100%" height={350}>
+                  <PieChart>
+                    <Pie
+                      data={paymentChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, percent, value }) => `${name}: R$ ${value.toFixed(0)} (${(percent * 100).toFixed(0)}%)`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      paddingAngle={2}
+                    >
+                      {paymentChartData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={COLORS[index % COLORS.length]}
+                          stroke="#fff"
+                          strokeWidth={2}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value, name, props) => [
+                        `R$ ${value.toFixed(2)} (${props.payload.count} transações)`,
+                        name
+                      ]}
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: '12px'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Card>
+            )}
           </div>
         )}
 
