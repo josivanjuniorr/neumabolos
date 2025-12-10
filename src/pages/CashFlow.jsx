@@ -5,12 +5,19 @@ import { cashFlowService } from '../services/cashFlowService'
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Area,
+  AreaChart,
 } from 'recharts'
 
 export const CashFlow = () => {
@@ -161,10 +168,12 @@ export const CashFlow = () => {
   
   // Dados para o gráfico (agrupados por dia)
   const chartData = {}
+  let saldoAcumulado = 0
+  
   cashFlow.forEach(transaction => {
     const date = transaction.transaction_date
     if (!chartData[date]) {
-      chartData[date] = { date, entrada: 0, saída: 0 }
+      chartData[date] = { date, entrada: 0, saída: 0, saldo: 0 }
     }
     if (transaction.transaction_type === 'entrada') {
       chartData[date].entrada += transaction.amount
@@ -172,9 +181,40 @@ export const CashFlow = () => {
       chartData[date].saída += transaction.amount
     }
   })
-  const chartDataArray = Object.values(chartData).sort((a, b) => 
-    new Date(a.date) - new Date(b.date)
-  )
+  
+  const chartDataArray = Object.values(chartData)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .map(day => {
+      saldoAcumulado += (day.entrada - day.saída)
+      return {
+        ...day,
+        saldo: day.entrada - day.saída,
+        saldoAcumulado: saldoAcumulado
+      }
+    })
+  
+  // Dados para gráfico de pizza por forma de pagamento
+  const paymentData = {}
+  cashFlow.forEach(transaction => {
+    const payment = transaction.payment_form || 'outros'
+    if (!paymentData[payment]) {
+      paymentData[payment] = { name: payment, value: 0, count: 0 }
+    }
+    paymentData[payment].value += transaction.amount
+    paymentData[payment].count += 1
+  })
+  
+  const paymentChartData = Object.values(paymentData).map(item => ({
+    name: item.name === 'cartao_credito' ? 'Cartão Crédito' :
+          item.name === 'cartao_debito' ? 'Cartão Débito' :
+          item.name === 'transferencia' ? 'Transferência' :
+          item.name.charAt(0).toUpperCase() + item.name.slice(1),
+    value: item.value,
+    count: item.count
+  }))
+  
+  // Cores para o gráfico de pizza
+  const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316']
   
   // Filtrar dados
   const filteredCashFlow = cashFlow.filter(transaction => {
@@ -380,37 +420,129 @@ export const CashFlow = () => {
 
         {/* Gráfico de Fluxo */}
         {chartDataArray.length > 0 && (
-          <Card title="Fluxo de Caixa">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartDataArray}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                />
-                <YAxis />
-                <Tooltip 
-                  labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
-                  formatter={(value) => `R$ ${value.toFixed(2)}`}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="entrada"
-                  stroke="#10B981"
-                  name="Entradas"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="saída"
-                  stroke="#EF4444"
-                  name="Saídas"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Gráfico de Linha - Entradas vs Saídas */}
+            <Card title="Entradas vs Saídas">
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={chartDataArray}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="date" 
+                    tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                  />
+                  <YAxis />
+                  <Tooltip 
+                    labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
+                    formatter={(value) => `R$ ${value.toFixed(2)}`}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="entrada"
+                    stroke="#10B981"
+                    name="Entradas"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="saída"
+                    stroke="#EF4444"
+                    name="Saídas"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Gráfico de Área - Saldo Acumulado */}
+            <Card title="Saldo Acumulado">
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={chartDataArray}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="date" 
+                    tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                  />
+                  <YAxis />
+                  <Tooltip 
+                    labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
+                    formatter={(value) => `R$ ${value.toFixed(2)}`}
+                  />
+                  <Legend />
+                  <Area
+                    type="monotone"
+                    dataKey="saldoAcumulado"
+                    stroke="#3B82F6"
+                    fill="#3B82F6"
+                    fillOpacity={0.3}
+                    name="Saldo Acumulado"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
+        )}
+
+        {/* Gráficos de Barras e Pizza */}
+        {chartDataArray.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Gráfico de Barras - Saldo Diário */}
+            <Card title="Saldo Diário (Entrada - Saída)">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartDataArray}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="date" 
+                    tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                  />
+                  <YAxis />
+                  <Tooltip 
+                    labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
+                    formatter={(value) => `R$ ${value.toFixed(2)}`}
+                  />
+                  <Legend />
+                  <Bar 
+                    dataKey="saldo" 
+                    fill="#8B5CF6" 
+                    name="Saldo do Dia"
+                    radius={[8, 8, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Gráfico de Pizza - Formas de Pagamento */}
+            <Card title="Distribuição por Forma de Pagamento">
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={paymentChartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {paymentChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name, props) => [
+                      `R$ ${value.toFixed(2)} (${props.payload.count} transações)`,
+                      name
+                    ]}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
         )}
 
         {/* Filtros de Busca */}
