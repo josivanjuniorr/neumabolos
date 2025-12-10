@@ -85,11 +85,20 @@ export const clientService = {
   },
 
   // Estatísticas de clientes
-  async getTopClientsByOrders(userId, limit = 5) {
-    const { data, error } = await supabase
+  async getTopClientsByOrders(userId, limit = 5, startDate = null, endDate = null) {
+    let query = supabase
       .from('daily_production')
       .select('client_id, clients(name)')
       .not('client_id', 'is', null)
+    
+    if (startDate) {
+      query = query.gte('production_date', startDate)
+    }
+    if (endDate) {
+      query = query.lte('production_date', endDate)
+    }
+
+    const { data, error } = await query
 
     if (error) throw error
 
@@ -114,12 +123,21 @@ export const clientService = {
       .slice(0, limit)
   },
 
-  async getTopClientsByRevenue(userId, limit = 5) {
-    const { data, error } = await supabase
+  async getTopClientsByRevenue(userId, limit = 5, startDate = null, endDate = null) {
+    let query = supabase
       .from('daily_production')
       .select('client_id, valor, clients(name)')
       .not('client_id', 'is', null)
       .not('valor', 'is', null)
+    
+    if (startDate) {
+      query = query.gte('production_date', startDate)
+    }
+    if (endDate) {
+      query = query.lte('production_date', endDate)
+    }
+
+    const { data, error } = await query
 
     if (error) throw error
 

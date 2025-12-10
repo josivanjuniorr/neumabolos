@@ -15,6 +15,7 @@ export const Production = () => {
   const [editingProduction, setEditingProduction] =
     useState(null)
   const [error, setError] = useState('')
+  const [clientSearch, setClientSearch] = useState('')
 
   // Calcular data inicial (uma semana atrás) e final (hoje)
   const getWeekStart = () => {
@@ -358,19 +359,34 @@ export const Production = () => {
               required
             />
 
-            <Select
-              label="Cliente"
-              name="client_id"
-              value={values.client_id}
-              onChange={handleChange}
-              options={[
-                { value: '', label: 'Selecione um cliente' },
-                ...clients.map(client => ({
-                  value: client.id,
-                  label: client.name
-                }))
-              ]}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Cliente
+              </label>
+              <Input
+                name="client_search"
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                placeholder="Buscar cliente..."
+                className="mb-2"
+              />
+              <Select
+                name="client_id"
+                value={values.client_id}
+                onChange={handleChange}
+                options={[
+                  { value: '', label: 'Selecione um cliente' },
+                  ...clients
+                    .filter(client => 
+                      client.name.toLowerCase().includes(clientSearch.toLowerCase())
+                    )
+                    .map(client => ({
+                      value: client.id,
+                      label: client.name
+                    }))
+                ]}
+              />
+            </div>
 
             <Input
               label="Valor"

@@ -10,6 +10,7 @@ export const Clients = () => {
   const [showModal, setShowModal] = useState(false)
   const [editingClient, setEditingClient] = useState(null)
   const [error, setError] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
 
   const initialValues = {
     name: '',
@@ -99,6 +100,10 @@ export const Clients = () => {
     { key: 'email', label: 'E-mail', render: (value) => value || '-' },
   ]
 
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -116,9 +121,18 @@ export const Clients = () => {
         )}
 
         <Card>
+          <div className="mb-4">
+            <Input
+              label="Buscar por nome"
+              name="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Digite o nome do cliente..."
+            />
+          </div>
           <Table
             columns={columns}
-            data={clients}
+            data={filteredClients}
             loading={loading}
             onEdit={handleEdit}
             onDelete={handleDelete}
