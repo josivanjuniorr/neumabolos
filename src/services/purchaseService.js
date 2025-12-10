@@ -127,6 +127,13 @@ export const purchaseService = {
   },
 
   async updatePurchase(id, updates, items) {
+    // Buscar a compra antiga antes de atualizar
+    const { data: oldPurchase } = await supabase
+      .from('purchases')
+      .select('purchase_date, total, supplier_id, payment_form, user_id')
+      .eq('id', id)
+      .single()
+
     const { data, error } = await supabase
       .from('purchases')
       .update(updates)
@@ -155,6 +162,53 @@ export const purchaseService = {
         .insert(itemsWithPurchaseId)
 
       if (itemsError) throw itemsError
+    }
+
+    // Atualizar a transação no fluxo de caixa
+    if (oldPurchase) {
+      try {
+        // Buscar a transação antiga
+        const { data: oldTransaction } = await supabase
+          .from('cash_flow')
+          .select('id')
+          .eq('transaction_date', oldPurchase.purchase_date)
+          .eq('type', 'saída')
+          .eq('category', 'Compras')
+          .eq('amount', oldPurchase.total)
+          .maybeSingle()
+
+        if (oldTransaction) {
+          // Buscar nome do fornecedor para a descrição
+          let supplierName = 'Fornecedor não informado'
+          const newSupplierId = updates.supplier_id || oldPurchase.supplier_id
+          
+          if (newSupplierId) {
+            const { data: supplierData } = await supabase
+              .from('suppliers')
+              .select('name')
+              .eq('id', newSupplierId)
+              .single()
+            
+            if (supplierData) {
+              supplierName = supplierData.name
+            }
+          }
+
+          // Atualizar a transação existente
+          await supabase
+            .from('cash_flow')
+            .update({
+              transaction_date: updates.purchase_date || oldPurchase.purchase_date,
+              description: `Compra - ${supplierName}`,
+              amount: updates.total || oldPurchase.total,
+              payment_form: updates.payment_form || oldPurchase.payment_form || 'outros',
+            })
+            .eq('id', oldTransaction.id)
+        }
+      } catch (cashFlowError) {
+        console.error('Erro ao atualizar saída no fluxo de caixa:', cashFlowError)
+        // Não falhar a atualização se houver erro no fluxo de caixa
+      }
     }
 
     return data
