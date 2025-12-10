@@ -95,6 +95,30 @@ export const Audit = () => {
     })
   }
 
+  const formatDataChanges = (log) => {
+    if (log.action === 'create' && log.new_data) {
+      return JSON.stringify(log.new_data, null, 2)
+    }
+    if (log.action === 'delete' && log.old_data) {
+      return JSON.stringify(log.old_data, null, 2)
+    }
+    if (log.action === 'update') {
+      const changes = {}
+      if (log.old_data && log.new_data) {
+        Object.keys(log.new_data).forEach(key => {
+          if (JSON.stringify(log.old_data[key]) !== JSON.stringify(log.new_data[key])) {
+            changes[key] = {
+              de: log.old_data[key],
+              para: log.new_data[key]
+            }
+          }
+        })
+      }
+      return JSON.stringify(changes, null, 2)
+    }
+    return '-'
+  }
+
   const columns = [
     {
       key: 'created_at',
@@ -115,6 +139,15 @@ export const Audit = () => {
       key: 'record_id',
       label: 'ID do Registro',
       render: (value) => value?.substring(0, 8) || '-',
+    },
+    {
+      key: 'changes',
+      label: 'Dados',
+      render: (value, row) => (
+        <pre className="text-xs bg-gray-50 dark:bg-gray-800 p-2 rounded max-w-md overflow-x-auto">
+          {formatDataChanges(row)}
+        </pre>
+      ),
     },
   ]
 
@@ -231,19 +264,6 @@ export const Audit = () => {
                 <Table
                   data={logs}
                   columns={columns}
-                  onView={(log) => {
-                    // Exibir detalhes em um alert (pode ser melhorado com modal)
-                    const details = `
-Ação: ${getActionLabel(log.action)}
-Módulo: ${getTableLabel(log.table_name)}
-Data/Hora: ${formatDate(log.created_at)}
-ID do Registro: ${log.record_id}
-
-${log.old_data ? `Dados Antigos:\n${JSON.stringify(log.old_data, null, 2)}\n\n` : ''}
-${log.new_data ? `Dados Novos:\n${JSON.stringify(log.new_data, null, 2)}` : ''}
-                    `
-                    alert(details)
-                  }}
                 />
               </div>
             )}

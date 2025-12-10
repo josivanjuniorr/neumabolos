@@ -11,7 +11,6 @@ export const reportService = {
     const { data, error } = await supabase
       .from('purchases')
       .select('total')
-      .eq('user_id', userId)
       .gte('purchase_date', startDate)
       .lte('purchase_date', endDate)
 

@@ -10,7 +10,6 @@ export const ingredientService = {
         category:ingredient_categories(name),
         supplier:suppliers(name)
       `)
-      .eq('user_id', userId)
       .eq('status', 'active')
 
     if (error) throw error
@@ -97,7 +96,6 @@ export const ingredientService = {
     const { data, error } = await supabase
       .from('ingredients')
       .select('*')
-      .eq('user_id', userId)
       .eq('status', 'active')
       .order('unit_cost', { ascending: false })
       .limit(limit)

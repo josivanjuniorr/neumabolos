@@ -5,7 +5,6 @@ export const categoryService = {
     const { data, error } = await supabase
       .from('ingredient_categories')
       .select('*')
-      .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -96,7 +95,6 @@ export const purchaseCategoryService = {
     const { data, error } = await supabase
       .from('purchase_categories')
       .select('*')
-      .eq('user_id', userId)
       .order('type', { ascending: true })
       .order('name', { ascending: true })
 

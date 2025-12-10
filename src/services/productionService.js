@@ -7,7 +7,6 @@ export const productionService = {
     const { data, error } = await supabase
       .from('daily_production')
       .select('*, clients(name)')
-      .eq('user_id', userId)
       .eq('production_date', date)
       .order('created_at', { ascending: false })
 
@@ -19,7 +18,6 @@ export const productionService = {
     const { data, error } = await supabase
       .from('daily_production')
       .select('*, clients(name)')
-      .eq('user_id', userId)
       .gte('production_date', startDate)
       .lte('production_date', endDate)
       .order('production_date', { ascending: false })
@@ -178,7 +176,6 @@ export const productionService = {
     const { data, error } = await supabase
       .from('daily_production')
       .select('estimated_cost')
-      .eq('user_id', userId)
       .gte('production_date', startDate)
       .lte('production_date', endDate)
 

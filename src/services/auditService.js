@@ -32,7 +32,6 @@ export const auditService = {
       let query = supabase
         .from('audit_logs')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
       // Aplicar filtros opcionais
@@ -70,7 +69,6 @@ export const auditService = {
       const { data, error } = await supabase
         .from('audit_logs')
         .select('action, table_name')
-        .eq('user_id', userId)
         .gte('created_at', startDate)
         .lte('created_at', endDate)
 

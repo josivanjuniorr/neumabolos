@@ -6,7 +6,6 @@ export const clientService = {
     const { data, error } = await supabase
       .from('clients')
       .select('*')
-      .eq('user_id', userId)
       .order('name', { ascending: true })
 
     if (error) throw error
@@ -90,7 +89,6 @@ export const clientService = {
     const { data, error } = await supabase
       .from('daily_production')
       .select('client_id, clients(name)')
-      .eq('user_id', userId)
       .not('client_id', 'is', null)
 
     if (error) throw error
@@ -120,7 +118,6 @@ export const clientService = {
     const { data, error } = await supabase
       .from('daily_production')
       .select('client_id, valor, clients(name)')
-      .eq('user_id', userId)
       .not('client_id', 'is', null)
       .not('valor', 'is', null)
 
@@ -151,7 +148,6 @@ export const clientService = {
     const { data, error } = await supabase
       .from('daily_production')
       .select('*')
-      .eq('user_id', userId)
       .eq('client_id', clientId)
 
     if (error) throw error

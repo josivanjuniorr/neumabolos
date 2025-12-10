@@ -6,7 +6,6 @@ export const supplierService = {
     const { data, error } = await supabase
       .from('suppliers')
       .select('*')
-      .eq('user_id', userId)
       .eq('status', 'active')
 
     if (error) throw error

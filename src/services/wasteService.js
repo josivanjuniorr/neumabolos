@@ -6,7 +6,6 @@ export const wasteService = {
     const { data, error } = await supabase
       .from('waste_analysis')
       .select('*')
-      .eq('user_id', userId)
       .order('waste_date', { ascending: false })
 
     if (error) throw error
@@ -17,7 +16,6 @@ export const wasteService = {
     const { data, error } = await supabase
       .from('waste_analysis')
       .select('*')
-      .eq('user_id', userId)
       .gte('waste_date', startDate)
       .lte('waste_date', endDate)
       .order('waste_date', { ascending: false })
@@ -91,7 +89,6 @@ export const wasteService = {
     const { data, error } = await supabase
       .from('waste_analysis')
       .select('estimated_cost')
-      .eq('user_id', userId)
       .gte('waste_date', startDate)
       .lte('waste_date', endDate)
 

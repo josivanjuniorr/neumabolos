@@ -6,7 +6,6 @@ export const cashFlowService = {
     const { data, error } = await supabase
       .from('cash_flow')
       .select('*')
-      .eq('user_id', userId)
       .order('transaction_date', { ascending: false })
 
     if (error) throw error
@@ -17,7 +16,6 @@ export const cashFlowService = {
     const { data, error } = await supabase
       .from('cash_flow')
       .select('*')
-      .eq('user_id', userId)
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate)
       .order('transaction_date', { ascending: false })
@@ -91,7 +89,6 @@ export const cashFlowService = {
     const { data, error } = await supabase
       .from('cash_flow')
       .select('transaction_date, transaction_type, amount')
-      .eq('user_id', userId)
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate)
       .order('transaction_date', { ascending: true })
