@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useAuth, useForm } from '../hooks'
-import { MainLayout, Card, Button, Table, Modal, Input, Select, Alert } from '../components'
+import { MainLayout, Card, Button, Table, Modal, Input, Select, Alert, StatCard } from '../components'
 import { cashFlowService } from '../services/cashFlowService'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 
 export const CashFlow = () => {
   const { user } = useAuth()
@@ -11,6 +21,23 @@ export const CashFlow = () => {
   const [editingTransaction, setEditingTransaction] =
     useState(null)
   const [error, setError] = useState('')
+  
+  // Filtros
+  const getToday = () => new Date().toISOString().split('T')[0]
+  const getMonthStart = () => {
+    const date = new Date()
+    return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0]
+  }
+  const getMonthEnd = () => {
+    const date = new Date()
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0]
+  }
+  
+  const [startDate, setStartDate] = useState(getMonthStart())
+  const [endDate, setEndDate] = useState(getMonthEnd())
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterPaymentForm, setFilterPaymentForm] = useState('')
+  const [filterResponsible, setFilterResponsible] = useState('')
 
   const initialValues = {
     transaction_date: new Date().toISOString().split('T')[0],
@@ -28,7 +55,7 @@ export const CashFlow = () => {
   useEffect(() => {
     if (!user) return
     loadCashFlow()
-  }, [user])
+  }, [user, startDate, endDate])
 
   useEffect(() => {
     if (editingTransaction) {
@@ -53,7 +80,7 @@ export const CashFlow = () => {
   const loadCashFlow = async () => {
     try {
       setLoading(true)
-      const data = await cashFlowService.getCashFlow(user.id)
+      const data = await cashFlowService.getCashFlowByDateRange(user.id, startDate, endDate)
       setCashFlow(data || [])
     } catch (error) {
       console.error('Erro ao carregar caixa:', error)
@@ -101,6 +128,8 @@ export const CashFlow = () => {
   }
 
   const handleDelete = async (id) => {
+    if (!confirm('Tem certeza que deseja excluir esta transação?')) return
+    
     try {
       await cashFlowService.deleteTransaction(id)
       await loadCashFlow()
@@ -109,45 +138,324 @@ export const CashFlow = () => {
     }
   }
 
+  // Calcular estatísticas
+  const stats = {
+    totalEntradas: cashFlow
+      .filter(t => t.transaction_type === 'entrada')
+      .reduce((sum, t) => sum + t.amount, 0),
+    totalSaidas: cashFlow
+      .filter(t => t.transaction_type === 'saída')
+      .reduce((sum, t) => sum + t.amount, 0),
+  }
+  stats.saldo = stats.totalEntradas - stats.totalSaidas
+  
+  // Saldo do dia (hoje)
+  const today = getToday()
+  const todayTransactions = cashFlow.filter(t => t.transaction_date === today)
+  stats.saldoDia = todayTransactions
+    .filter(t => t.transaction_type === 'entrada')
+    .reduce((sum, t) => sum + t.amount, 0) - 
+    todayTransactions
+    .filter(t => t.transaction_type === 'saída')
+    .reduce((sum, t) => sum + t.amount, 0)
+  
+  // Dados para o gráfico (agrupados por dia)
+  const chartData = {}
+  cashFlow.forEach(transaction => {
+    const date = transaction.transaction_date
+    if (!chartData[date]) {
+      chartData[date] = { date, entrada: 0, saída: 0 }
+    }
+    if (transaction.transaction_type === 'entrada') {
+      chartData[date].entrada += transaction.amount
+    } else {
+      chartData[date].saída += transaction.amount
+    }
+  })
+  const chartDataArray = Object.values(chartData).sort((a, b) => 
+    new Date(a.date) - new Date(b.date)
+  )
+  
+  // Filtrar dados
+  const filteredCashFlow = cashFlow.filter(transaction => {
+    const matchSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchPayment = !filterPaymentForm || transaction.payment_form === filterPaymentForm
+    const matchResponsible = !filterResponsible || 
+      (transaction.responsible && transaction.responsible.toLowerCase().includes(filterResponsible.toLowerCase()))
+    return matchSearch && matchPayment && matchResponsible
+  })
+  
+  // Agrupar por data para exibição
+  const groupedByDate = {}
+  filteredCashFlow.forEach(transaction => {
+    const date = transaction.transaction_date
+    if (!groupedByDate[date]) {
+      groupedByDate[date] = []
+    }
+    groupedByDate[date].push(transaction)
+  })
+  
+  // Obter lista de responsáveis únicos
+  const uniqueResponsibles = [...new Set(
+    cashFlow.map(t => t.responsible).filter(Boolean)
+  )]
+  
+  // Exportar para CSV
+  const exportToCSV = () => {
+    const headers = ['Data', 'Tipo', 'Descrição', 'Valor', 'Forma Pagamento', 'Responsável']
+    const rows = filteredCashFlow.map(t => [
+      t.transaction_date,
+      t.transaction_type === 'entrada' ? 'Entrada' : 'Saída',
+      t.description,
+      t.amount.toFixed(2),
+      t.payment_form,
+      t.responsible || ''
+    ])
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n')
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `fluxo-caixa-${startDate}-${endDate}.csv`
+    link.click()
+  }
+  
+  // Ícones para formas de pagamento
+  const paymentIcons = {
+    dinheiro: '💵',
+    cartao_credito: '💳',
+    cartao_debito: '💳',
+    pix: '📱',
+    cheque: '📝',
+    transferencia: '🏦'
+  }
+
   const columns = [
     {
       key: 'transaction_date',
       label: 'Data',
       render: (value) =>
-        new Date(value).toLocaleDateString('pt-BR'),
+        new Date(value + 'T00:00:00').toLocaleDateString('pt-BR'),
     },
     {
       key: 'transaction_type',
       label: 'Tipo',
-      render: (value) =>
-        value === 'entrada' ? '↓ Entrada' : '↑ Saída',
+      render: (value) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          value === 'entrada' 
+            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+        }`}>
+          {value === 'entrada' ? '↓ Entrada' : '↑ Saída'}
+        </span>
+      ),
     },
     { key: 'description', label: 'Descrição' },
     {
       key: 'amount',
       label: 'Valor',
-      render: (value) => `R$ ${value.toFixed(2)}`,
+      render: (value, row) => (
+        <span className={`font-semibold ${
+          row.transaction_type === 'entrada' ? 'text-green-600' : 'text-red-600'
+        }`}>
+          R$ {value.toFixed(2)}
+        </span>
+      ),
     },
-    { key: 'payment_form', label: 'Forma de Pagamento' },
-    { key: 'responsible', label: 'Responsável' },
+    { 
+      key: 'payment_form', 
+      label: 'Pagamento',
+      render: (value) => (
+        <span className="flex items-center gap-1">
+          <span>{paymentIcons[value] || '💰'}</span>
+          <span className="text-xs">
+            {value === 'cartao_credito' ? 'Crédito' :
+             value === 'cartao_debito' ? 'Débito' :
+             value === 'transferencia' ? 'Transfer.' :
+             value.charAt(0).toUpperCase() + value.slice(1)}
+          </span>
+        </span>
+      )
+    },
+    { 
+      key: 'responsible', 
+      label: 'Responsável',
+      render: (value) => value || '-'
+    },
   ]
 
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Controle de Caixa
           </h1>
-          <Button variant="primary" onClick={handleAdd}>
-            + Nova Transação
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={exportToCSV}>
+              📥 Exportar
+            </Button>
+            <Button variant="primary" onClick={handleAdd}>
+              + Nova Transação
+            </Button>
+          </div>
         </div>
 
+        {/* Cards de Resumo */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            title="Saldo Total"
+            value={`R$ ${stats.saldo.toFixed(2)}`}
+            icon="💰"
+            trend={stats.saldo >= 0 ? 'up' : 'down'}
+            trendValue={stats.saldo >= 0 ? 'Positivo' : 'Negativo'}
+          />
+          <StatCard
+            title="Total Entradas"
+            value={`R$ ${stats.totalEntradas.toFixed(2)}`}
+            icon="📈"
+            trend="up"
+            trendValue={`${cashFlow.filter(t => t.transaction_type === 'entrada').length} transações`}
+          />
+          <StatCard
+            title="Total Saídas"
+            value={`R$ ${stats.totalSaidas.toFixed(2)}`}
+            icon="📉"
+            trend="down"
+            trendValue={`${cashFlow.filter(t => t.transaction_type === 'saída').length} transações`}
+          />
+          <StatCard
+            title="Saldo do Dia"
+            value={`R$ ${stats.saldoDia.toFixed(2)}`}
+            icon="📅"
+            trend={stats.saldoDia >= 0 ? 'up' : 'down'}
+            trendValue={new Date().toLocaleDateString('pt-BR')}
+          />
+        </div>
+
+        {/* Filtro de Período */}
         <Card>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Período:</label>
+            <button
+              onClick={() => {
+                const today = getToday()
+                setStartDate(today)
+                setEndDate(today)
+              }}
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+            >
+              Hoje
+            </button>
+            <button
+              onClick={() => {
+                setStartDate(getMonthStart())
+                setEndDate(getMonthEnd())
+              }}
+              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 hover:text-white text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+            >
+              Este Mês
+            </button>
+            <div className="flex items-center gap-2">
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="text-sm"
+              />
+              <span className="text-gray-500">até</span>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Gráfico de Fluxo */}
+        {chartDataArray.length > 0 && (
+          <Card title="Fluxo de Caixa">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartDataArray}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                />
+                <YAxis />
+                <Tooltip 
+                  labelFormatter={(value) => new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')}
+                  formatter={(value) => `R$ ${value.toFixed(2)}`}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="entrada"
+                  stroke="#10B981"
+                  name="Entradas"
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="saída"
+                  stroke="#EF4444"
+                  name="Saídas"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+        )}
+
+        {/* Filtros de Busca */}
+        <Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              label="Buscar por descrição"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Digite a descrição..."
+            />
+            <Select
+              label="Forma de Pagamento"
+              value={filterPaymentForm}
+              onChange={(e) => setFilterPaymentForm(e.target.value)}
+              options={[
+                { value: '', label: 'Todas' },
+                { value: 'dinheiro', label: 'Dinheiro' },
+                { value: 'cartao_credito', label: 'Cartão Crédito' },
+                { value: 'cartao_debito', label: 'Cartão Débito' },
+                { value: 'pix', label: 'PIX' },
+                { value: 'cheque', label: 'Cheque' },
+                { value: 'transferencia', label: 'Transferência' },
+              ]}
+            />
+            <Select
+              label="Responsável"
+              value={filterResponsible}
+              onChange={(e) => setFilterResponsible(e.target.value)}
+              options={[
+                { value: '', label: 'Todos' },
+                ...uniqueResponsibles.map(resp => ({
+                  value: resp,
+                  label: resp
+                }))
+              ]}
+            />
+          </div>
+        </Card>
+
+        {/* Tabela de Transações */}
+        <Card title={`Transações (${filteredCashFlow.length})`}>
           <Table
             columns={columns}
-            data={cashFlow}
+            data={filteredCashFlow}
             loading={loading}
             onEdit={handleEdit}
             onDelete={handleDelete}
